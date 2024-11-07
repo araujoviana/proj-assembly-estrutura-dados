@@ -34,6 +34,7 @@ public class Repl {
 
         // Verifica se o comando está vazio
         if (input.isEmpty()) {
+            displayError("entrada está vazia.");
             return false;
         }
         String[] splitInput = input.split(" ");
@@ -42,11 +43,13 @@ public class Repl {
         try {
             Integer.parseInt(splitInput[0]);
         } catch (NumberFormatException e) {
+            displayError("entrada não começa com número válido.");
             return false;
         }
 
         // Verifica se existe um comando para verificar
         if (splitInput.length < 2) {
+            displayError("entrada não contém comando nem instrução.");
             return false;
         }
 
@@ -70,10 +73,15 @@ public class Repl {
         // Se a segunda parte não for encontrada em nenhum dos comandos e instruções
         // então ela é inválida
         if (!foundInCommands && !foundInInstructions) {
+            displayError("entrada não contém comando nem instrução válida.");
             return false;
         }
 
         return true;
+    }
+
+    public void displayError(String errorMessage) {
+        System.out.println("Erro: " + errorMessage);
     }
 
 }
