@@ -1,5 +1,10 @@
-// FIXME vai estar bagunçado isso aqui
+/////////////////////////////////////////////
+// Matheus Gabriel Viana Araujo - 10420444 //
+// Enzo Carvalho Pagliarini - 10425707     //
+/////////////////////////////////////////////
+
 public class Instructions {
+    // List of valid instruction mnemonics
     String[] instructions = { "mov", "inc", "dec", "add", "sub", "mul", "div", "jnz", "out" };
 
     public String[] getInstructions() {
@@ -14,5 +19,89 @@ public class Instructions {
             }
         }
         return false;
+    }
+
+    /**
+     * Valida a sintaxe dos parâmetros de uma instrução.
+     * 
+     * @param instruction A instrução que está sendo verificada
+     * @param parameters  Os parâmetros a serem validados
+     * @return Uma string de erro se os parâmetros forem inválidos, ou null se forem
+     *         válidos
+     */
+    public String validateSyntax(String instruction, String parameters) {
+        String[] parts = parameters.split(" ");
+
+        switch (instruction) {
+            case "mov":
+            case "add":
+            case "sub":
+            case "mul":
+            case "div":
+                // Essas instruções exigem dois parâmetros: um registrador e um número ou um
+                // registrador
+                if (parts.length != 2) {
+                    return "Erro: A instrução " + instruction + " precisa de dois parâmetros válidos.";
+                }
+                if (!isValidRegister(parts[0])) {
+                    return "Erro: O primeiro parâmetro da instrução " + instruction
+                            + " deve ser um registrador válido (a-z).";
+                }
+                if (!isValidRegisterOrNumber(parts[1])) {
+                    return "Erro: O segundo parâmetro da instrução " + instruction
+                            + " deve ser um número ou registrador válido.";
+                }
+                break;
+
+            case "inc":
+            case "dec":
+            case "out":
+                // Essas instruções exigem apenas um parâmetro: um registrador
+                if (parts.length != 1) {
+                    return "Erro: A instrução " + instruction + " precisa de um parâmetro válido.";
+                }
+                if (!isValidRegister(parts[0])) {
+                    return "Erro: O parâmetro da instrução " + instruction + " deve ser um registrador válido (a-z).";
+                }
+                break;
+
+            case "jnz":
+                // "jnz" exige um registrador e um número ou um registrador
+                if (parts.length != 2) {
+                    return "Erro: A instrução jnz precisa de dois parâmetros válidos.";
+                }
+                if (!isValidRegister(parts[0])) {
+                    return "Erro: O primeiro parâmetro da instrução jnz deve ser um registrador válido (a-z).";
+                }
+                if (!isValidRegisterOrNumber(parts[1])) {
+                    return "Erro: O segundo parâmetro da instrução jnz deve ser um número ou registrador válido.";
+                }
+                break;
+
+            default:
+                return "Erro: Instrução desconhecida.";
+        }
+
+        return null; // Se nenhum erro, retorna null (sintaxe válida)
+    }
+
+    // Verifica se o parâmetro é um registrador válido (de 'a' a 'z')
+    private boolean isValidRegister(String param) {
+        return param.length() == 1 && param.matches("[a-z]");
+    }
+
+    // Verifica se o parâmetro é um número ou um registrador válido
+    private boolean isValidRegisterOrNumber(String param) {
+        return isValidRegister(param) || isValidNumber(param);
+    }
+
+    // Verifica se o parâmetro é um número válido (inteiro)
+    private boolean isValidNumber(String param) {
+        try {
+            Integer.parseInt(param);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 }
