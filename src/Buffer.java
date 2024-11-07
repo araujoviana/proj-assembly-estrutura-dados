@@ -59,6 +59,10 @@ public class Buffer {
         return null; // Não retorna nada quando a linha é nova
     }
 
+    public getCommandBuffer() {
+        return commandBuffer;
+    }
+
     /**
      * Retorna uma representação em string do buffer de comandos.
      * 
