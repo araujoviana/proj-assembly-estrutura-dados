@@ -23,6 +23,9 @@ public class Program {
 			if (repl.validateInput(input)) {
 				repl.evaluateInput(input);
 			}
+			else {
+			    break;
+			}
 		}
 
 		scanner.close();
