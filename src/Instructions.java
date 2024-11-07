@@ -106,8 +106,7 @@ public class Instructions {
         }
     }
 
-
-    public String add(String parameters) {
+    public String add(String parameters, Registers registers) {
         String[] paramParts = parameters.split(" ");
 
         // FIXME isso não funciona com apenas números
@@ -117,5 +116,7 @@ public class Instructions {
         // Realiza a soma e armazena o resultado no registrador 1
         int result = val1 + val2;
         registers.setRegisterValue(reg1, result);
+
+        return null;
     }
 }

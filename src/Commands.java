@@ -26,6 +26,8 @@ public class Commands {
         return false;
     }
 
+    // As strings retornadas são erros
+    // Se comunica diretamente com o buffer para adicionar as linhas
     public String insert(Buffer buffer, int lineNumber, String instruction, String parameters) {
         // Verifica se o número da linha é positivo
         if (lineNumber <= 0) {
@@ -41,11 +43,12 @@ public class Commands {
     }
 
     public String run(Buffer buffer) {
-        LinkedList commandBuffer = buffer.getCommandBuffer();
+        LinkedList<String> commandBuffer = buffer.getCommandBuffer();
+
         // Verifica se há código carregado no buffer
         if (commandBuffer.isEmpty()) {
             return "nenhum código carregado na memória.";
-        }   
+        }
 
         return buffer.evaluateBuffer();
     }

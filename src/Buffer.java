@@ -9,6 +9,7 @@ public class Buffer {
 
     // Armazena todos os comandos carregados
     private LinkedList<String> commandBuffer;
+    // Armazena todos os registradores carregados
     private Registers registers;
 
     public Buffer() {
@@ -25,30 +26,30 @@ public class Buffer {
         // Verifica se a lista está vazia e insere diretamente se for o caso
         if (current == null) {
             commandBuffer.append(line);
-            return null; // Não retorna nada se for uma nova linha adicionada
+            return null;
         }
 
-        // Percorre a lista para encontrar a posição correta de inserção
+        // Percorre a lista para encontrar a posição correta de inserção de acordo com o
+        // número da linha inserida
         do {
             String[] parts = current.getValue().split(" ", 2);
             int existingLineNumber = Integer.parseInt(parts[0]);
 
-            // Verifica se a linha já existe
+            // Verifica se a linha já existe, se sim, ela é substituida
             if (existingLineNumber == lineNumber) {
-                // Se a linha já existir, captura a linha original
                 String originalLine = current.getValue();
 
-                // Substitui a linha existente
                 current.setValue(line);
 
-                // Retorna a mensagem no formato solicitado
-                return "Linha:\n" + originalLine + "\nAtualizada para:\n" + line;
+                // HACK Buffer deveria se retornar a saída diretamente com REPL
+                System.out.println("Linha:\n" + originalLine + "\nAtualizada para:\n" + line);
+                return null;
             }
 
             // Insere antes de um número de linha maior, mantendo a ordem
             if (existingLineNumber > lineNumber) {
                 commandBuffer.insertBefore(current, line);
-                return null; // Não retorna nada quando a linha é nova
+                return null;
             }
 
             current = current.getNext();
@@ -56,7 +57,7 @@ public class Buffer {
 
         // Caso nenhuma posição de linha maior seja encontrada, insere no final
         commandBuffer.append(line);
-        return null; // Não retorna nada quando a linha é nova
+        return null;
     }
 
     public String evaluateBuffer() {
@@ -65,13 +66,13 @@ public class Buffer {
 
         Node<String> current = commandBuffer.getHead();
         Instructions instructions = new Instructions();
-        
+
         do {
             // Divide a linha em partes (número da linha, instrução e parâmetros)
             String[] parts = current.getValue().split(" ", 3);
-            String lineNumber = parts[0];   // Número da linha (não utilizado diretamente aqui)
-            String instruction = parts[1];   // Instrução (ex: 'mov', 'add')
-            String parameters = parts[2];    // Parâmetros da instrução
+            String lineNumber = parts[0]; // Número da linha (não utilizado diretamente aqui)
+            String instruction = parts[1]; // Instrução (ex: 'mov', 'add')
+            String parameters = parts[2]; // Parâmetros da instrução
 
             // Verifica se a instrução é válida
             if (!instructions.isInstruction(instruction)) {
@@ -83,16 +84,13 @@ public class Buffer {
                 return "Erro na linha " + lineNumber + ": " + validationError;
             }
 
-            // Avaliar !
-
+            // Avalia comando respectivo
             if (instruction == "add") {
-                String result = instructions.add(parameters);
-                if (result != null) {
-                    return result;
-                }
+                String result = instructions.add(parameters, registers);
+
+                // Retorna possíveis erros
+                return result;
             }
-            
-            
 
             current = current.getNext();
         } while (current != commandBuffer.getHead());
@@ -100,7 +98,7 @@ public class Buffer {
         return null; // Não retorna nenhum erro quando a execução ocorre normalmente
     }
 
-    public getCommandBuffer() {
+    public LinkedList<String> getCommandBuffer() {
         return commandBuffer;
     }
 

@@ -3,16 +3,18 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
-// TODO descrição dessa classe
+/*
+ * Implementa a lógica de um REPL que processa os comandos inseridos pelo usuário e
+ * os executa se comunicando com o buffer do código.
+ */
 public class Repl {
 
-    private Commands commands;
-    // private Instructions instructions = new Instructions();
-    private Buffer buffer;
+    private Commands commands; // Lógica dos comandos do REPL
+    private Buffer buffer; // Buffer do código atual
 
     public Repl() {
-        this.buffer = new Buffer();
-        this.commands = new Commands();
+        buffer = new Buffer();
+        commands = new Commands();
     }
 
     /**
@@ -26,7 +28,6 @@ public class Repl {
         return input.toLowerCase().replaceAll("\\s+", " ").trim();
     }
 
-    // TODO mudar isso pra retornar a string de erro
     /**
      * Verifica se a entrada do usuário é válida para ser avaliada pelo REPL,
      * isso não quer dizer que ele não cause erros dentro da funcionalidade interna
@@ -40,7 +41,7 @@ public class Repl {
 
         // Verifica se o comando está vazio
         if (input.isEmpty()) {
-            displayError("entrada está vazia.");
+            displayMessage("entrada está vazia.", 3);
             return false;
         }
         String[] splitInput = input.split(" ");
@@ -49,64 +50,82 @@ public class Repl {
 
         // Verifica se o primeiro termo é um comando válido
         if (!commands.isCommand(potentialCommand)) {
-            displayError("O comando fornecido não é válido.");
-            return false;
-        }
-
-        // Verifica se existe um comando para verificar
-        if (splitInput.length < 2) {
-            displayError("entrada não contém parâmetros do comando.");
+            displayMessage("O comando fornecido não é válido.", 3);
             return false;
         }
 
         return true;
     }
 
+    /**
+     * Verifica qual comando o usuário vai executar, verifica se existem erros
+     * iniciais e usa a classe Commands para avaliar o comando
+     * 
+     * @param input comando do usuário
+     */
     public void evaluateInput(String input) {
-        // REVIEW precisa ser assim?
 
+        // Isola o comando do resto da entrada
         String[] splitInput = input.split(" ", 2);
         String command = splitInput[0];
 
+        // Comando insert
         if (command.equals("ins") && splitInput.length > 1) {
             try {
-                // Exemplo de entrada: "ins 71 out a"
+                // Isola o número da linha, a instrução e os parâmetros
                 String[] args = splitInput[1].split(" ", 3);
 
                 int lineNumber = Integer.parseInt(args[0]);
                 String instruction = args[1];
+
+                // Parâmetros são Strings vazias se não forem preenchidos
                 String parameters = args.length > 2 ? args[2] : "";
 
                 // Chama o comando ins no buffer
                 String result = commands.insert(buffer, lineNumber, instruction, parameters);
 
                 if (result == null) {
-                    System.out.println("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters);
+                    // Comando foi bem-sucedido
+                    displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters, 0);
                 } else {
-                    System.out.println(result); // Mensagem de erro
+                    // Comando retornou erro
+                    displayMessage(result, 3); 
                 }
+
+            // REVIEW Isso é necessário?
             } catch (NumberFormatException e) {
-                System.out.println("Erro: formato de linha inválido.");
+                displayMessage("formato de linha inválido.", 3);
             } catch (ArrayIndexOutOfBoundsException e) {
-                System.out.println("Erro: parâmetros insuficientes para o comando INS.");
+                displayMessage("parâmetros insuficientes para o comando INS.", 3);
             }
-        }
-        else if (command.equals("run") && splitInput.length == 1) {
+        } else if (command.equals("run") && splitInput.length == 1) {
             // VERIFICAÇÕES AQUI
 
             // execução
-            String result = command.run(buffer);
-            
-                if (result == null) {
-                    System.out.println("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters);
-                } else {
-                    System.out.println(result); // Mensagem de erro
-                }
+            String result = commands.run(buffer);
+
+            if (result == null) {
+                displayMessage("RUN PLACEHOLDER", 0);
+            } else {
+                displayMessage(result, 3);
+            }
         }
     }
 
-    public void displayError(String errorMessage) {
-        System.out.println("Erro: " + errorMessage);
+    // Exibe alguma mensagem para o usuário, podendo ser um erro, aviso ou informação
+    public void displayMessage(String message, int code) {
+        switch (code) {
+            case 0: // Informação
+                System.out.println(message);
+                break;
+            case 1: // Aviso
+                System.out.println("Aviso: " + message);
+                break;
+            case 2: // Erro
+                System.out.println("Erro: " + message);
+                break;
+        }
     }
+
 
 }

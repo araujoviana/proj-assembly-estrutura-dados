@@ -1,3 +1,8 @@
+/////////////////////////////////////////////
+// Matheus Gabriel Viana Araujo - 10420444 //
+// Enzo Carvalho Pagliarini - 10425707     //
+/////////////////////////////////////////////
+
 public class Registers {
     private LinkedList<RegisterNode> registerList;
 
@@ -10,16 +15,15 @@ public class Registers {
     }
 
     /**
-     * Retrieves the value of a specific register by name.
+     * Recupera o valor de um registrador específico pelo nome.
      *
-     * @param reg the name of the register (e.g., 'a' to 'z')
-     * @return the value of the register
-     * @throws IllegalArgumentException if the register name is invalid
+     * @param reg o nome do registrador de "a" a "z"
+     * @return o valor do registrador
      */
     public int getRegisterValue(char reg) {
         Node<RegisterNode> current = registerList.getHead();
 
-        // Traverse circularly to find the register
+        // Procura o valor pela lista
         do {
             if (current.getValue().getName() == reg) {
                 return current.getValue().getValue();
@@ -27,7 +31,8 @@ public class Registers {
             current = current.getNext();
         } while (current != registerList.getHead());
 
-        // TODO Substitua
+        // TODO Substitua por um valor realmente nulo ou menos perigoso
+        // Se não encontrar o valor...
         return 0;
 
     }
