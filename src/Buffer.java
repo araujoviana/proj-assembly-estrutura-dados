@@ -9,9 +9,11 @@ public class Buffer {
 
     // Armazena todos os comandos carregados
     private LinkedList<String> commandBuffer;
+    private Registers registers;
 
     public Buffer() {
         commandBuffer = new LinkedList<>();
+        registers = new Registers();
     }
 
     public String insertLine(int lineNumber, String instruction, String parameters) {

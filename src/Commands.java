@@ -1,3 +1,8 @@
+/////////////////////////////////////////////
+// Matheus Gabriel Viana Araujo - 10420444 //
+// Enzo Carvalho Pagliarini - 10425707     //
+/////////////////////////////////////////////
+
 // FIXME vai estar bagunçado isso aqui
 public class Commands {
     String[] commands = { "load", "list", "run", "ins", "del", "save", "exit" };
