@@ -39,27 +39,17 @@ public class Repl {
         }
         String[] splitInput = input.split(" ");
 
-        // Verifica se o comando começa com um número
-        try {
-            Integer.parseInt(splitInput[0]);
-        } catch (NumberFormatException e) {
-            displayError("entrada não começa com número válido.");
+        String potentialCommand = splitInput[0];
+
+        // Verifica se o primeiro termo é um comando válido
+        if (!commands.isCommand(potentialCommand)) {
+            displayError("O comando fornecido não é válido.");
             return false;
         }
 
         // Verifica se existe um comando para verificar
         if (splitInput.length < 2) {
-            displayError("entrada não contém comando nem instrução.");
-            return false;
-        }
-
-        // Verifica se a segunda parte da entrada é um comando ou instrução válida
-        String secondPart = splitInput[1];
-
-        // Se a segunda parte não for encontrada em nenhum dos comandos e instruções
-        // então ela é inválida
-        if (!commands.isCommand(secondPart) && !instructions.isInstruction(secondPart)) {
-            displayError("entrada não contém comando nem instrução válida.");
+            displayError("entrada não contém parâmetros do comando.");
             return false;
         }
 
@@ -68,7 +58,6 @@ public class Repl {
 
     public void evaluateInput(String input) {
         // REVIEW precisa ser assim?
-        
 
     }
 
