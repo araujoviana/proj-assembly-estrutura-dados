@@ -6,4 +6,13 @@ public class Commands {
         return commands;
     }
 
+    // Verifica se a string fornecida é uma instrução válida
+    public boolean isCommand(String input) {
+        for (String command : commands) {
+            if (command.equals(input)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

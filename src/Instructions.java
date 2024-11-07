@@ -5,4 +5,14 @@ public class Instructions {
     public String[] getInstructions() {
         return instructions;
     }
+
+    // Verifica se a string fornecida é uma instrução válida
+    public boolean isInstruction(String input) {
+        for (String instruction : instructions) {
+            if (instruction.equals(input)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

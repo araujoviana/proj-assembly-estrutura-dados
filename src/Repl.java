@@ -55,29 +55,21 @@ public class Repl {
 
         // Verifica se a segunda parte da entrada é um comando ou instrução válida
         String secondPart = splitInput[1];
-        boolean foundInCommands = false;
-        for (String command : commands.getCommands()) {
-            if (command.equals(secondPart)) {
-                foundInCommands = true;
-                break;
-            }
-        }
-        boolean foundInInstructions = false;
-        for (String instruction : instructions.getInstructions()) {
-            if (instruction.equals(secondPart)) {
-                foundInInstructions = true;
-                break;
-            }
-        }
 
         // Se a segunda parte não for encontrada em nenhum dos comandos e instruções
         // então ela é inválida
-        if (!foundInCommands && !foundInInstructions) {
+        if (!commands.isCommand(secondPart) && !instructions.isInstruction(secondPart)) {
             displayError("entrada não contém comando nem instrução válida.");
             return false;
         }
 
         return true;
+    }
+
+    public void evaluateInput(String input) {
+        // REVIEW precisa ser assim?
+        
+
     }
 
     public void displayError(String errorMessage) {
