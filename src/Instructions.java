@@ -86,6 +86,7 @@ public class Instructions {
     }
 
     // Verifica se o parâmetro é um registrador válido (de 'a' a 'z')
+    // TODO renomear!!
     private boolean isValidRegister(String param) {
         return param.length() == 1 && param.matches("[a-z]");
     }

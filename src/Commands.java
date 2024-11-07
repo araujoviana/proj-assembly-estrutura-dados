@@ -29,14 +29,24 @@ public class Commands {
     public String insert(Buffer buffer, int lineNumber, String instruction, String parameters) {
         // Verifica se o número da linha é positivo
         if (lineNumber <= 0) {
-            return "Erro: o número da linha deve ser positivo.";
+            return "o número da linha deve ser positivo.";
         }
 
         // Verifica se a instrução fornecida é válida
         if (!instructions.isInstruction(instruction)) {
-            return "Erro: instrução inválida.";
+            return "instrução inválida.";
         }
 
         return buffer.insertLine(lineNumber, instruction, parameters);
+    }
+
+    public String run(Buffer buffer) {
+        LinkedList commandBuffer = buffer.getCommandBuffer();
+        // Verifica se há código carregado no buffer
+        if (commandBuffer.isEmpty()) {
+            return "nenhum código carregado na memória.";
+        }   
+
+        return buffer.evaluateBuffer();
     }
 }

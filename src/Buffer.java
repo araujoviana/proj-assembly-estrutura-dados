@@ -59,6 +59,38 @@ public class Buffer {
         return null; // Não retorna nada quando a linha é nova
     }
 
+    public String evaluateBuffer() {
+        // Check if the WHOLE BUFFER is good to go!
+        // ...
+
+        Node<String> current = commandBuffer.getHead();
+        Instructions instructions = new Instructions();
+        
+        do {
+            // Divide a linha em partes (número da linha, instrução e parâmetros)
+            String[] parts = current.getValue().split(" ", 3);
+            String lineNumber = parts[0];   // Número da linha (não utilizado diretamente aqui)
+            String instruction = parts[1];   // Instrução (ex: 'mov', 'add')
+            String parameters = parts[2];    // Parâmetros da instrução
+
+            // Verifica se a instrução é válida
+            if (!instructions.isInstruction(instruction)) {
+                return "Erro: Instrução inválida na linha " + lineNumber + ": " + instruction;
+            }
+            // Valida a sintaxe dos parâmetros da instrução
+            String validationError = instructions.validateSyntax(instruction, parameters);
+            if (validationError != null) {
+                return "Erro na linha " + lineNumber + ": " + validationError;
+            }
+            // Avaliar !
+            
+
+            current = current.getNext();
+        } while (current != commandBuffer.getHead());
+
+        return null; // Não retorna nenhum erro quando a execução ocorre normalmente
+    }
+
     public getCommandBuffer() {
         return commandBuffer;
     }

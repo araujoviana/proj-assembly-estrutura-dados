@@ -91,6 +91,18 @@ public class Repl {
                 System.out.println("Erro: parâmetros insuficientes para o comando INS.");
             }
         }
+        else if (command.equals("run") && splitInput.length == 1) {
+            // VERIFICAÇÕES AQUI
+
+            // execução
+            String result = command.run(buffer);
+            
+                if (result == null) {
+                    System.out.println("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters);
+                } else {
+                    System.out.println(result); // Mensagem de erro
+                }
+        }
     }
 
     public void displayError(String errorMessage) {
