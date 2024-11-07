@@ -75,6 +75,46 @@ public class LinkedList<T> {
         count++;
 
     }
+/**
+ * Insere um nó antes do nó especificado na lista.
+ *
+ * @param node O nó antes do qual o novo nó será inserido.
+ * @param value O valor a ser armazenado no novo nó.
+ * @return true se a inserção for bem-sucedida, false se o nó especificado não for encontrado.
+ */
+public boolean insertBefore(Node<T> node, T value) {
+    // Verifica se a lista está vazia
+    if (head == null) {
+        return false;
+    }
+
+    Node<T> current = head;
+
+    // Percorre a lista até encontrar o nó especificado
+    do {
+        if (current.equals(node)) {
+            Node<T> newNode = new Node<>(value);
+
+            // Se o nó a ser inserido é o head
+            if (current == head) {
+                insert(value); // Usa o método insert para adicionar no começo
+                return true;
+            }
+
+            Node<T> prevNode = current.getPrev();
+            prevNode.setNext(newNode);  // O nó anterior agora aponta para o novo nó
+            current.setPrev(newNode);   // O nó atual agora aponta para o novo nó
+            newNode.setNext(current);   // O novo nó aponta para o nó atual
+            newNode.setPrev(prevNode);  // O novo nó aponta para o nó anterior
+
+            count++;  // Incrementa o número de nós
+            return true;
+        }
+        current = current.getNext();
+    } while (current != head);
+
+    return false; // Nó não encontrado
+}
 
     /**
      * Remove o nó no início da lista (head) e retorna o nó removido.

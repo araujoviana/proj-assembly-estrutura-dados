@@ -17,8 +17,7 @@ public class Commands {
     }
 
     public String insert(Buffer buffer, int lineNumber, String instruction, String parameters) {
-        // TODO
-
-        return null;
+        System.out.println(buffer);
+        return buffer.insertLine(lineNumber, instruction, parameters);
     }
 }
