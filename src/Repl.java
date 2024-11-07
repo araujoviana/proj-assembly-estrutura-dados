@@ -6,8 +6,14 @@
 // TODO descrição dessa classe
 public class Repl {
 
-    Commands commands = new Commands();
-    Instructions instructions = new Instructions();
+    private Commands commands;
+    // private Instructions instructions = new Instructions();
+    private Buffer buffer;
+
+    public Repl() {
+        this.buffer = new Buffer();
+        this.commands = new Commands();
+    }
 
     /**
      * Converte a entrada inicial para maíusculo e remove todos os espaços
@@ -59,6 +65,32 @@ public class Repl {
     public void evaluateInput(String input) {
         // REVIEW precisa ser assim?
 
+        String[] splitInput = input.split(" ", 2);
+        String command = splitInput[0];
+
+        if (command.equals("ins") && splitInput.length > 1) {
+            try {
+                // Exemplo de entrada: "ins 71 out a"
+                String[] args = splitInput[1].split(" ", 3);
+
+                int lineNumber = Integer.parseInt(args[0]);
+                String instruction = args[1];
+                String parameters = args.length > 2 ? args[2] : "";
+
+                // Chama o comando ins no buffer
+                String result = commands.insert(buffer, lineNumber, instruction, parameters);
+
+                if (result == null) {
+                    System.out.println("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters);
+                } else {
+                    System.out.println(result); // Mensagem de erro
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Erro: formato de linha inválido.");
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.out.println("Erro: parâmetros insuficientes para o comando INS.");
+            }
+        }
     }
 
     public void displayError(String errorMessage) {
