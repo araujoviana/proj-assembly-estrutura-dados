@@ -5,7 +5,6 @@
 
 import java.util.Scanner;
 
-
 public class Program {
 	public static void main(String[] args) {
 
@@ -15,7 +14,7 @@ public class Program {
 
 		Repl repl = new Repl();
 
-		while (!input.equals("EXIT")) {
+		while (true) {
 			System.out.print("> ");
 
 			// Entrada é formatada antes de ser avaliada
