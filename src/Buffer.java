@@ -14,15 +14,6 @@ public class Buffer {
         commandBuffer = new LinkedList<>();
     }
 
-    /**
-     * Insere uma linha na posição correta baseada no número da linha.
-     * 
-     * @param lineNumber  O número da linha onde a instrução deve ser inserida.
-     * @param instruction A instrução a ser inserida.
-     * @param parameters  Os parâmetros adicionais da instrução.
-     * @return Uma string de erro se a linha já existir, ou null se a inserção for
-     *         bem-sucedida.
-     */
     public String insertLine(int lineNumber, String instruction, String parameters) {
         // Constrói a linha completa a partir dos parâmetros
         String line = lineNumber + " " + instruction + " " + parameters;
@@ -32,7 +23,7 @@ public class Buffer {
         // Verifica se a lista está vazia e insere diretamente se for o caso
         if (current == null) {
             commandBuffer.append(line);
-            return null;
+            return null; // Não retorna nada se for uma nova linha adicionada
         }
 
         // Percorre a lista para encontrar a posição correta de inserção
@@ -42,13 +33,20 @@ public class Buffer {
 
             // Verifica se a linha já existe
             if (existingLineNumber == lineNumber) {
-                return "Erro: linha " + lineNumber + " já existe.";
+                // Se a linha já existir, captura a linha original
+                String originalLine = current.getValue();
+
+                // Substitui a linha existente
+                current.setValue(line);
+
+                // Retorna a mensagem no formato solicitado
+                return "Linha:\n" + originalLine + "\nAtualizada para:\n" + line;
             }
 
             // Insere antes de um número de linha maior, mantendo a ordem
             if (existingLineNumber > lineNumber) {
                 commandBuffer.insertBefore(current, line);
-                return null;
+                return null; // Não retorna nada quando a linha é nova
             }
 
             current = current.getNext();
@@ -56,7 +54,7 @@ public class Buffer {
 
         // Caso nenhuma posição de linha maior seja encontrada, insere no final
         commandBuffer.append(line);
-        return null;
+        return null; // Não retorna nada quando a linha é nova
     }
 
     /**
