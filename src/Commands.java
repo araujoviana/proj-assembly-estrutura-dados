@@ -15,4 +15,10 @@ public class Commands {
         }
         return false;
     }
+
+    public String insert(Buffer buffer, int lineNumber, String instruction, String parameters) {
+        // TODO
+
+        return null;
+    }
 }

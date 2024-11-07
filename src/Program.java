@@ -20,10 +20,9 @@ public class Program {
 			// Entrada é formatada antes de ser avaliada
 			input = repl.formatInput(scanner.nextLine());
 
-			// Interpreta e avalia o tipo de entrada específica,
-			// imprimindo o resultado
-			repl.readFormattedInput(input);
-
+			if (repl.validateInput(input)) {
+				repl.evaluateInput(input);
+			}
 		}
 
 		scanner.close();

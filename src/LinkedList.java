@@ -3,8 +3,8 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
-// TODO verificar ortografia de algum desses comentários...
-// REVIEW Alterar essa classe de acordo com as necessidades
+// REVIEW verificar ortografia de algum desses comentários...
+// REVIEW Alterar/adicionar métodos da classe de acordo com as necessidades
 
 // Lista duplamente encadeada circular genérica
 public class LinkedList<T> {
