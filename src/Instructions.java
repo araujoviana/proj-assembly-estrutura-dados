@@ -105,4 +105,17 @@ public class Instructions {
             return false;
         }
     }
+
+
+    public String add(String parameters) {
+        String[] paramParts = parameters.split(" ");
+
+        // FIXME isso não funciona com apenas números
+        int val1 = registers.getRegisterValue(paramParts[0]);
+        int val2 = registers.getRegisterValue(paramParts[1]); // aqui!
+
+        // Realiza a soma e armazena o resultado no registrador 1
+        int result = val1 + val2;
+        registers.setRegisterValue(reg1, result);
+    }
 }

@@ -82,7 +82,16 @@ public class Buffer {
             if (validationError != null) {
                 return "Erro na linha " + lineNumber + ": " + validationError;
             }
+
             // Avaliar !
+
+            if (instruction == "add") {
+                String result = instructions.add(parameters);
+                if (result != null) {
+                    return result;
+                }
+            }
+            
             
 
             current = current.getNext();
