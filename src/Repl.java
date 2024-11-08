@@ -129,7 +129,8 @@ public class Repl {
                 // Chama o comando ins no buffer
                 String result = commands.delete(buffer, lineNumbers);
 
-                if (result.startsWith("Linha removida")) {
+                // Expressão regular para começar com: "Linha(s opcional) removida(s opcional)?"
+                if (result.matches("^Linhas? removidas?")) {
                     displayMessage(result, 0);
                 } else if (result != null) {
                     displayMessage(result, 2);

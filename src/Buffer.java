@@ -82,7 +82,7 @@ public class Buffer {
                 boolean removed = commandBuffer.removeNode(lineToRemove);
 
                 if (removed) {
-                    return "linha removida:\n" + lineToRemove;
+                    return "Linha removida:\n" + lineToRemove;
                 } else {
                     return "não foi possível remover a linha.";
                 }
@@ -95,6 +95,7 @@ public class Buffer {
         return "linha " + lineNumber + " inexistente.";
     }
 
+    // FIXME Remove apenas o primeiro nó se intervalo começar no inicio da lista
     public String removeInterval(int lineStart, int lineEnd) {
         // Verifica se os parâmetros do intervalo são válidos
         if (lineStart > lineEnd) {
@@ -110,24 +111,34 @@ public class Buffer {
             return "a lista está vazia.";
         }
 
+        Node<String> nextNode = current.getNext(); // Guardando o próximo nó
+
         do {
+            // Divide o valor da linha atual para obter o número da linha
             String[] parts = current.getValue().split(" ", 2);
             int existingLineNumber = Integer.parseInt(parts[0]);
 
             // Verifica se a linha está no intervalo
             if (existingLineNumber >= lineStart && existingLineNumber <= lineEnd) {
-                String lineToRemove = current.getValue();
-                Node<String> nextNode = current.getNext();
 
-                // Tenta remover o nó e atualiza o indicador de remoção
+                String lineToRemove = current.getValue();
+
+                // Tenta remover o nó
                 boolean removed = commandBuffer.removeNode(lineToRemove);
                 if (removed) {
                     removedAny = true;
                     removedLines.append(lineToRemove).append("\n");
                 }
+
+                // Como removemos o nó atual, precisamos reconfigurar o próximo nó
                 current = nextNode;
             } else {
-                current = current.getNext();
+                current = nextNode;
+            }
+
+            // Atualiza o próximo nó
+            if (current != commandBuffer.getHead()) {
+                nextNode = current.getNext();
             }
 
         } while (current != commandBuffer.getHead());
