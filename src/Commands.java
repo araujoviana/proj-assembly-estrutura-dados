@@ -55,17 +55,27 @@ public class Commands {
 
     public String list(Buffer buffer) {
         LinkedList<String> commandBuffer = buffer.getCommandBuffer();
+
         // Verifica se há código carregado no buffer
         if (commandBuffer.isEmpty()) {
             return "nenhum código carregado na memória.";
         }
 
-        // HACK evite prints fora do displayMessage
+        StringBuilder sb = new StringBuilder();
+        Node<String> currentNode = commandBuffer.getHead();
+        int count = 0;
 
-        System.out.println(commandBuffer.toString());
+        // Percorre a lista encadeada e adiciona as 20 primeiras linhas
+        do {
+            sb.append(currentNode.getValue()).append("\n");
+            currentNode = currentNode.getNext();
+            count++;
+        } while (currentNode != commandBuffer.getHead() && count < 20);
+
+        // Retorna as primeiras 20 linhas ou a quantidade disponível
+        System.out.println(sb.toString());
 
         return null;
-
     }
 
     public String delete(Buffer buffer, Integer[] lineNumbers) {
