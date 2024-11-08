@@ -82,8 +82,7 @@ public class Buffer {
                 boolean removed = commandBuffer.removeNode(lineToRemove);
 
                 if (removed) {
-                    System.out.println("linha removida:\n" + lineToRemove);
-                    return null;
+                    return "linha removida:\n" + lineToRemove;
                 } else {
                     return "não foi possível remover a linha.";
                 }
@@ -104,6 +103,7 @@ public class Buffer {
 
         Node<String> current = commandBuffer.getHead();
         boolean removedAny = false;
+        StringBuilder removedLines = new StringBuilder("Linhas removidas:\n");
 
         // Verifica se a lista está vazia
         if (current == null) {
@@ -123,7 +123,7 @@ public class Buffer {
                 boolean removed = commandBuffer.removeNode(lineToRemove);
                 if (removed) {
                     removedAny = true;
-                    System.out.println("linha removida:\n" + lineToRemove);
+                    removedLines.append(lineToRemove).append("\n");
                 }
                 current = nextNode;
             } else {
@@ -132,9 +132,10 @@ public class Buffer {
 
         } while (current != commandBuffer.getHead());
 
-        // Verifica se alguma linha foi removida
+        // Retorna as linhas removidas ou uma mensagem caso nenhuma linha tenha sido
+        // encontrada
         if (removedAny) {
-            return null;
+            return removedLines.toString();
         } else {
             return "nenhuma linha encontrada no intervalo especificado.";
         }
