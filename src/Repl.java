@@ -122,7 +122,7 @@ public class Repl {
             // Chama o comando list no buffer e recebe qualquer mensagem retornada
             String message = commands.list(buffer);
 
-// Verifica se a mensagem começa com um número
+            // Verifica se a mensagem começa com um número
             if (message.matches("^[0-9]")) {
                 displayMessage(message, 0);
 
