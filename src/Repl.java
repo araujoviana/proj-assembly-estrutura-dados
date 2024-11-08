@@ -5,13 +5,13 @@
 
 /*
  * Implementa a lógica de um REPL que processa os comandos inseridos pelo usuário e
- * os executa se comunicando com o buffer do código.
+ * os executa se comunicando com o buffer do código carregado.
  */
 public class Repl {
 
-    private Commands commands; // Lógica dos comandos do REPL
+    private Commands commands; // Comandos do REPL
     private Buffer buffer; // Buffer do código atual
-    private String fileName; // Nome do arquivo do buffer
+    private String fileName; // Nome do arquivo carregado no buffer
 
     public Repl() {
         buffer = new Buffer();
@@ -21,7 +21,7 @@ public class Repl {
 
     /**
      * Converte a entrada inicial para maíusculo e remove todos os espaços
-     * desnecessários
+     * desnecessários.
      *
      * @param input entrada não formatada como "10 MoV A 5 "
      * @return entrada formatada tipo "10 mov a 5"
@@ -32,9 +32,7 @@ public class Repl {
 
     /**
      * Verifica se a entrada do usuário é válida para ser avaliada pelo REPL,
-     * isso não quer dizer que ele não cause erros dentro da funcionalidade interna
-     * dos comandos, essa é apenas uma verificação mínima, os erros de cada
-     * instrução/comando são tratados em seus métodos.
+     * mas ela ainda pode retornar erros dentro dos métodos das outras classes.
      *
      * @param input entrada formatada
      * @return true se o comando for válido e false se for inválido
@@ -46,13 +44,13 @@ public class Repl {
             displayMessage("entrada está vazia.", 2);
             return false;
         }
-        String[] splitInput = input.split(" ");
-
-        String potentialCommand = splitInput[0];
 
         // Verifica se o primeiro termo é um comando válido
+        String[] splitInput = input.split(" ");
+        String potentialCommand = splitInput[0];
+
         if (!commands.isCommand(potentialCommand)) {
-            displayMessage("O comando fornecido não é válido.", 2);
+            displayMessage("o comando fornecido não é válido.", 2);
             return false;
         }
 
@@ -60,10 +58,12 @@ public class Repl {
     }
 
     /**
-     * Verifica qual comando o usuário vai executar, verifica se existem erros
-     * iniciais e usa a classe Commands para avaliar o comando
+     * Verifica qual comando o usuário vai executar e
+     * usa a classe Commands para executar o comando.
      * 
      * @param input comando do usuário
+     * @return true se o usuário executar o comando EXIT, e
+     *         false para todos os outros
      */
     public boolean evaluateInput(String input) {
 
@@ -71,121 +71,132 @@ public class Repl {
         String[] splitInput = input.split(" ", 2);
         String command = splitInput[0];
 
+        // Finaliza a execução do REPL
         if (command.equals("exit")) {
             // Verificações...
 
-            String result = commands.exit(buffer, fileName);
+            String message = commands.exit(buffer, fileName);
 
-            if (result != null) {
-                displayMessage(result, 2);
+            if (message != null) {
+                displayMessage(message, 2);
             } else {
                 return true;
             }
         }
-        // Comando insert
-        else if (command.equals("ins") && splitInput.length > 1) {
-            try {
-                // Isola o número da linha, a instrução e os parâmetros
-                String[] args = splitInput[1].split(" ", 3);
+        // Insere uma instrução em uma linha específica
+        else if (command.equals("ins") && splitInput.length > 1 && splitInput.length < 6) {
+            // Isola o número da linha, a instrução e os parâmetros
+            String[] args = splitInput[1].split(" ", 3);
 
-                int lineNumber = Integer.parseInt(args[0]);
-                String instruction = args[1];
+            int lineNumber = Integer.parseInt(args[0]); // Número da linha da instrução
+            String instruction = args[1]; // Instrução
 
-                // Parâmetros são Strings vazias se não forem preenchidos
-                String parameters = args.length > 2 ? args[2] : "";
+            // Parâmetros são strings vazias se não forem preenchidas
+            String parameters = args.length > 2 ? args[2] : "";
 
-                // Chama o comando ins no buffer
-                String result = commands.insert(buffer, lineNumber, instruction, parameters);
+            // Chama o comando insert no buffer e recebe qualquer mensagem retornada
+            String message = commands.insert(buffer, lineNumber, instruction, parameters);
 
-                if (result == null) {
-                    // Comando foi bem-sucedido
-                    displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters, 0);
-                } else if (result != "atualizado") {
-                    // Comando retornou erro
-                    displayMessage(result, 2);
-                }
-
-                // REVIEW Isso é necessário?
-            } catch (NumberFormatException e) {
-                displayMessage("formato de linha inválido.", 2);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                displayMessage("parâmetros insuficientes para o comando INS.", 2);
+            if (message == null) {
+                // Comando foi bem-sucedido
+                displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters, 0);
+            } else if (message != "atualizado") {
+                // Comando retornou erro
+                displayMessage(message, 2);
             }
+
+            // Executa as instruções armazenadas no buffer
         } else if (command.equals("run") && splitInput.length == 1) {
             // VERIFICAÇÕES AQUI
 
-            // execução
-            String result = commands.run(buffer);
+            // Chama o comando run no buffer e recebe qualquer mensagem retornada
+            String message = commands.run(buffer);
 
-            if (result != null) {
-                displayMessage(result, 2);
+            if (message != null) {
+                // Comando retornou erro
+                displayMessage(message, 2);
             }
         } else if (command.equals("list") && splitInput.length == 1) {
             // VERIFICAÇÕES AQUI
 
-            // execução
-            String result = commands.list(buffer);
+            // Chama o comando list no buffer e recebe qualquer mensagem retornada
+            String message = commands.list(buffer);
 
-            if (result != null) {
-                displayMessage(result, 2);
+            if (message != null) {
+                // Comando retornou erro
+                displayMessage(message, 2);
             }
-        } else if (command.equals("del") && splitInput.length > 1) {
+
+            // Remove uma ou mais linhas do buffer
+        } else if (command.equals("del") && splitInput.length > 1 && splitInput.length < 4) {
             // VERIFICAÇÕES AQUI
-            try {
-                String[] numberStrings = splitInput[1].split(" ");
-                Integer[] lineNumbers = new Integer[numberStrings.length];
 
-                for (int i = 0; i < numberStrings.length; i++) {
-                    lineNumbers[i] = Integer.parseInt(numberStrings[i]); // Converte cada número de linha para Integer
-                }
-
-                // Chama o comando ins no buffer
-                String result = commands.delete(buffer, lineNumbers);
-
-                // Expressão regular para começar com: "Linha(s opcional) removida(s opcional)?"
-                if (result.matches("^Linhas? removidas?")) {
-                    displayMessage(result, 0);
-                } else if (result != null) {
-                    displayMessage(result, 2);
-                }
-
-                // REVIEW Isso é necessário?
-            } catch (NumberFormatException e) {
-                displayMessage("formato de linha inválido.", 2);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                displayMessage("parâmetros insuficientes para o comando DEL.", 2);
+            // Isola o número da linha ou intervalo de linhas
+            String[] numberStrings = splitInput[1].split(" ");
+            Integer[] lineNumbers = new Integer[numberStrings.length];
+            for (int i = 0; i < numberStrings.length; i++) {
+                lineNumbers[i] = Integer.parseInt(numberStrings[i]); // Converte cada número de linha para Integer
             }
+
+            // Chama o comando delete no buffer e recebe qualquer mensagem retornada
+            String message = commands.delete(buffer, lineNumbers);
+
+            // Expressão regular para começar com: "Linha(s opcional) removida(s opcional)?"
+            if (message.matches("^Linha(s)? removida(s)?$")) {
+                displayMessage(message, 0);
+            } else if (message != null) {
+                // Comando retornou erro
+                displayMessage(message, 2);
+            }
+
+            // Subsitui o conteúdo do buffer atual com o de um arquivo .ed1
         } else if (command.equals("load") && splitInput.length > 1) {
             // Verificações aqui...
 
-            String filePath = splitInput[1];
-            String result = commands.load(buffer, filePath);
+            String filePath = splitInput[1]; // Caminho do arquivo salvo
 
-            if (result != null) {
-                displayMessage(result, 2);
+            // Chama o comando load no buffer e recebe qualquer mensagem retornada
+            String message = commands.load(buffer, filePath);
+
+            if (message != null) {
+                // Comando retornou erro
+                displayMessage(message, 2);
             }
 
+            // Insere o conteúdo do buffer atual em um arquivo .ed1
         } else if (command.equals("save")) {
-            String savedFilePath;
+            String savedFilePath; // Caminho do arquivo salvo
 
+            // Verifica se o usuário especificou o arquivo para salvar
             if (splitInput[1] != null) {
                 savedFilePath = splitInput[1];
             } else {
                 savedFilePath = fileName;
             }
 
-            String result = commands.save(buffer, savedFilePath);
+            // Chama o comando save no buffer e recebe qualquer mensagem retornada
+            String message = commands.save(buffer, savedFilePath);
 
-            if (result != null) {
-                displayMessage(result, 2);
+            if (message != null) {
+                // Comando retornou erro
+                displayMessage(message, 2);
             }
         }
 
+        // Usuário não executou o comando EXIT
         return false;
     }
 
-    // Exibe alguma mensagem para o usuário, podendo ser um erro, aviso ou
-    // informação
+    /**
+     * Exibe alguma mensagem para o usuário, podendo ser um erro,
+     * aviso ou informação.
+     * 
+     * @param message mensagem de um método
+     * @param code    tipo da mensagem a ser exibida:
+     *                0 para informação,
+     *                1 para aviso,
+     *                2 para erro
+     */
     public void displayMessage(String message, int code) {
         switch (code) {
             case 0: // Informação
