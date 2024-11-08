@@ -10,10 +10,11 @@ public class Program {
 		Scanner scanner = new Scanner(System.in);
 		String input = "";
 		Repl repl = new Repl();
+		boolean hasExited = false;
 
 		// TODO adicionar condição de saída melhor
 		// O REPL pede a entrada do usuário até ele inserir o comando de saída
-		while (true) {
+		while (!hasExited) {
 			System.out.print("> ");
 
 			// Entrada é formatada antes de ser avaliada
@@ -25,9 +26,7 @@ public class Program {
 			 * Se a validação for bem-sucedida, a entrada é avaliada
 			 */
 			if (repl.validateInput(input)) {
-				repl.evaluateInput(input);
-			} else {
-				break;
+				hasExited = repl.evaluateInput(input);
 			}
 		}
 

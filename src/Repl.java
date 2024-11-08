@@ -65,14 +65,25 @@ public class Repl {
      * 
      * @param input comando do usuário
      */
-    public void evaluateInput(String input) {
+    public boolean evaluateInput(String input) {
 
         // Isola o comando do resto da entrada
         String[] splitInput = input.split(" ", 2);
         String command = splitInput[0];
 
+        if (command.equals("exit")) {
+            // Verificações...
+
+            String result = commands.exit(buffer, fileName);
+
+            if (result != null) {
+                displayMessage(result, 2);
+            } else {
+                return true;
+            }
+        }
         // Comando insert
-        if (command.equals("ins") && splitInput.length > 1) {
+        else if (command.equals("ins") && splitInput.length > 1) {
             try {
                 // Isola o número da linha, a instrução e os parâmetros
                 String[] args = splitInput[1].split(" ", 3);
@@ -169,6 +180,8 @@ public class Repl {
                 displayMessage(result, 2);
             }
         }
+
+        return false;
     }
 
     // Exibe alguma mensagem para o usuário, podendo ser um erro, aviso ou

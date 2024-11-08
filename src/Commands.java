@@ -108,4 +108,10 @@ public class Commands {
         return result;
     }
 
+    public String exit(Buffer buffer, String fileName) {
+        // Verificações
+
+        return null;
+    }
+
 }
