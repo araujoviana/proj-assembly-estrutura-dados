@@ -84,12 +84,24 @@ public class Buffer {
                 return "Erro na linha " + lineNumber + ": " + validationError;
             }
 
-            // Avalia comando respectivo
-            if (instruction == "add") {
-                String result = instructions.add(parameters, registers);
+            // Mensagem retornada pelas instruções
+            String result;
 
-                // Retorna possíveis erros
-                return result;
+            // Avalia comando respectivo
+            switch (instruction) {
+                case "add":
+
+                    result = instructions.add(parameters, registers);
+
+                    // Retorna possíveis erros
+                    return result;
+
+                case "mov":
+
+                    result = instructions.mov(parameters, registers);
+
+                    return result;
+
             }
 
             current = current.getNext();
