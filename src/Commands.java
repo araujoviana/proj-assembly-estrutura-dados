@@ -99,4 +99,13 @@ public class Commands {
         return result;
     }
 
+    public String save(Buffer buffer, String savedFilePath) {
+
+        // TODO polir essa função
+
+        String result = buffer.saveBuffer(savedFilePath);
+
+        return result;
+    }
+
 }

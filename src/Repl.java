@@ -11,10 +11,12 @@ public class Repl {
 
     private Commands commands; // Lógica dos comandos do REPL
     private Buffer buffer; // Buffer do código atual
+    private String fileName; // Nome do arquivo do buffer
 
     public Repl() {
         buffer = new Buffer();
         commands = new Commands();
+        fileName = "";
     }
 
     /**
@@ -152,6 +154,20 @@ public class Repl {
                 displayMessage(result, 2);
             }
 
+        } else if (command.equals("save")) {
+            String savedFilePath;
+
+            if (splitInput[1] != null) {
+                savedFilePath = splitInput[1];
+            } else {
+                savedFilePath = fileName;
+            }
+
+            String result = commands.save(buffer, savedFilePath);
+
+            if (result != null) {
+                displayMessage(result, 2);
+            }
         }
     }
 

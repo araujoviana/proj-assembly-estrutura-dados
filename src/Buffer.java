@@ -5,6 +5,8 @@
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 // REVIEW descrição
@@ -230,8 +232,22 @@ public class Buffer {
             while ((currentLine = br.readLine()) != null) {
                 commandBuffer.append(currentLine);
             }
+            
+            // TODO Atualizar o fileName
         } catch (IOException e) {
             return "erro ao ler o arquivo " + filePath + ".";
+        }
+
+        return null;
+    }
+
+    public String saveBuffer(String filePath) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+            bw.write(commandBuffer.toString());
+            bw.newLine();
+        }
+        catch (IOException e) {
+            return "erro ao salvar o arquivo " + ((filePath == "") ? " sem nome" : filePath) + ".";
         }
 
         return null;
