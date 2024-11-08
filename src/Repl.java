@@ -142,6 +142,16 @@ public class Repl {
             } catch (ArrayIndexOutOfBoundsException e) {
                 displayMessage("parâmetros insuficientes para o comando DEL.", 2);
             }
+        } else if (command.equals("load") && splitInput.length > 1) {
+            // Verificações aqui...
+
+            String filePath = splitInput[1];
+            String result = commands.load(buffer, filePath);
+
+            if (result != null) {
+                displayMessage(result, 2);
+            }
+
         }
     }
 

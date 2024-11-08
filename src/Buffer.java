@@ -3,6 +3,10 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 // REVIEW descrição
 // Age como um buffer que armazena o código atualmente carregado no REPL 
 public class Buffer {
@@ -217,6 +221,22 @@ public class Buffer {
         return null; // Não retorna nenhum erro quando a execução ocorre normalmente
     }
 
+    public String loadBuffer(String filePath) {
+
+        // Verificações, presumindo que tudo deu certo...
+        commandBuffer.clear();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String currentLine;
+            while ((currentLine = br.readLine()) != null) {
+                commandBuffer.append(currentLine);
+            }
+        } catch (IOException e) {
+            return "erro ao ler o arquivo " + filePath + ".";
+        }
+
+        return null;
+    }
+
     public LinkedList<String> getCommandBuffer() {
         return commandBuffer;
     }
@@ -230,4 +250,5 @@ public class Buffer {
     public String toString() {
         return commandBuffer.toString();
     }
+
 }

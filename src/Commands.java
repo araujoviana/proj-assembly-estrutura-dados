@@ -89,4 +89,14 @@ public class Commands {
         }
 
     }
+
+    public String load(Buffer buffer, String filePath) {
+
+        // TODO polir essa função
+
+        String result = buffer.loadBuffer(filePath);
+
+        return result;
+    }
+
 }
