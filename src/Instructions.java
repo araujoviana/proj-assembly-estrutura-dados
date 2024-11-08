@@ -152,4 +152,17 @@ public class Instructions {
         return null;
     }
 
+    public String out(String parameters, Registers registers) {
+        String[] paramParts = parameters.split(" ");
+
+        // Obtém o valor do registrador especificado
+        char reg = paramParts[0].charAt(0);
+        int valor = registers.getRegisterValue(reg);
+
+        // Imprime o valor do registrador
+        System.out.println(valor);
+
+        return null;
+    }
+
 }

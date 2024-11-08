@@ -94,14 +94,29 @@ public class Buffer {
                     result = instructions.add(parameters, registers);
 
                     // Retorna possíveis erros
-                    return result;
+                    if (result != null) {
+                        return result;
+                    }
+                    break;
 
                 case "mov":
 
                     result = instructions.mov(parameters, registers);
 
-                    return result;
+                    if (result != null) {
+                        return result;
+                    }
 
+                    break;
+                case "out":
+
+                    result = instructions.out(parameters, registers);
+
+                    if (result != null) {
+                        return result;
+                    }
+
+                    break;
             }
 
             current = current.getNext();
