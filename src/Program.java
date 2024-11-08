@@ -5,25 +5,29 @@
 
 import java.util.Scanner;
 
+/*
+** Realiza a interação direta com o usuário, formatando, validando e
+** avaliando a entrada chamando a classe Repl
+*/
 public class Program {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
 		String input = "";
 		Repl repl = new Repl();
-		boolean hasExited = false;
+		boolean hasExited = false; // Verifica se o usuário executou o comando EXIT
 
-		// TODO adicionar condição de saída melhor
 		// O REPL pede a entrada do usuário até ele inserir o comando de saída
 		while (!hasExited) {
 			System.out.print("> ");
 
-			// Entrada é formatada antes de ser avaliada
+			// Formata a entrada antes de avaliar
 			input = repl.formatInput(scanner.nextLine());
 
 			/*
 			 * Realiza uma validação preliminar da entrada, verificando erros simples antes
 			 * de processá-la mais profundamente.
-			 * Se a validação for bem-sucedida, a entrada é avaliada
+			 * Se a validação for bem-sucedida, a entrada é avaliada e verificada
+			 * novamente por outros métodos.
 			 */
 			if (repl.validateInput(input)) {
 				hasExited = repl.evaluateInput(input);
