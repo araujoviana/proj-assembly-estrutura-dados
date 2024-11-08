@@ -171,7 +171,7 @@ public class Instructions {
 
         int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
 
-        if (val1 != 0) {
+        if (val1 == 0) {
             return new JnzResult(current, null);
         }
 
