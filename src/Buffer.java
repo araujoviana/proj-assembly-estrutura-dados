@@ -215,6 +215,21 @@ public class Buffer {
                     }
 
                     break;
+                // Como jnz altera a ordem de execução do buffer então ele não retorna apenas a
+                // String contendo algum erro mas também retorna a instrução atual
+                case "jnz":
+
+                    Object[] jnzResult = instructions.jnz(current, parameters, registers);
+
+                    result = (String) jnzResult[1];
+
+                    if (result != null) {
+                        return result;
+                    }
+                    else {
+                        current = (Node<String>) jnzResult[0];
+                    }
+                    break;
             }
 
             current = current.getNext();
@@ -232,7 +247,7 @@ public class Buffer {
             while ((currentLine = br.readLine()) != null) {
                 commandBuffer.append(currentLine);
             }
-            
+
             // TODO Atualizar o fileName
         } catch (IOException e) {
             return "erro ao ler o arquivo " + filePath + ".";
@@ -245,8 +260,7 @@ public class Buffer {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
             bw.write(commandBuffer.toString());
             bw.newLine();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             return "erro ao salvar o arquivo " + ((filePath == "") ? " sem nome" : filePath) + ".";
         }
 

@@ -165,4 +165,31 @@ public class Instructions {
         return null;
     }
 
+    public Object[] jnz(Node<String> current, String parameters, Registers registers) {
+        String[] paramParts = parameters.split(" ");
+
+        // Contém a instrução atual e a mensagem de erro
+        Object[] jnzResult = new Object[2];
+
+        // Obtém o valor do primeiro parâmetro (sempre registrador)
+        int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
+
+        // Se x não for zero então não faz o pulo
+        if (val1 != 0) {
+            //
+        }
+
+        // Verifica se o segundo parâmetro é um número ou um registrador
+        int val2;
+        if (isValidNumber(paramParts[1])) {
+            // Se for um número, converte diretamente para inteiro
+            val2 = Integer.parseInt(paramParts[1]);
+        } else {
+            // Se não for um número, obtém o valor do registrador
+            val2 = registers.getRegisterValue(paramParts[1].charAt(0));
+        }
+
+        return null;
+    }
+
 }
