@@ -23,7 +23,7 @@ public class Repl {
      * Converte a entrada inicial para maíusculo e remove todos os espaços
      * desnecessários.
      *
-     * @param input entrada não formatada como "10 MoV A 5 "
+     * @param input a entrada não formatada como "10 MoV A 5 "
      * @return entrada formatada tipo "10 mov a 5"
      */
     public String formatInput(String input) {
@@ -34,7 +34,7 @@ public class Repl {
      * Verifica se a entrada do usuário é válida para ser avaliada pelo REPL,
      * mas ela ainda pode retornar erros dentro dos métodos das outras classes.
      *
-     * @param input entrada formatada
+     * @param input a entrada formatada
      * @return true se o comando for válido e false se for inválido
      */
     public boolean validateInput(String input) {
@@ -61,7 +61,7 @@ public class Repl {
      * Verifica qual comando o usuário vai executar e
      * usa a classe Commands para executar o comando.
      * 
-     * @param input comando do usuário
+     * @param input o comando do usuário
      * @return true se o usuário executar o comando EXIT, e
      *         false para todos os outros
      */
@@ -85,21 +85,21 @@ public class Repl {
         }
         // Insere uma instrução em uma linha específica
         else if (command.equals("ins") && splitInput.length > 1 && splitInput.length < 6) {
-            // Isola o número da linha, a instrução e os parâmetros
-            String[] args = splitInput[1].split(" ", 3);
+            // Isola o número da linha, a instrução e os argumentos
+            String[] insertArguments = splitInput[1].split(" ", 3);
 
-            int lineNumber = Integer.parseInt(args[0]); // Número da linha da instrução
-            String instruction = args[1]; // Instrução
+            int lineNumber = Integer.parseInt(insertArguments[0]); // Número da linha da instrução
+            String instruction = insertArguments[1]; // Instrução
 
-            // Parâmetros são strings vazias se não forem preenchidas
-            String parameters = args.length > 2 ? args[2] : "";
+            // Arguments são strings vazias se não forem preenchidas
+            String arguments = insertArguments.length > 2 ? insertArguments[2] : "";
 
             // Chama o comando insert no buffer e recebe qualquer mensagem retornada
-            String message = commands.insert(buffer, lineNumber, instruction, parameters);
+            String message = commands.insert(buffer, lineNumber, instruction, arguments);
 
             if (message == null) {
                 // Comando foi bem-sucedido
-                displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters, 0);
+                displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + arguments, 0);
             } else if (message != "atualizado") {
                 // Comando retornou erro
                 displayMessage(message, 2);
@@ -122,7 +122,11 @@ public class Repl {
             // Chama o comando list no buffer e recebe qualquer mensagem retornada
             String message = commands.list(buffer);
 
-            if (message != null) {
+// Verifica se a mensagem começa com um número
+            if (message.matches("^[0-9]")) {
+                displayMessage(message, 0);
+
+            } else if (message != null) {
                 // Comando retornou erro
                 displayMessage(message, 2);
             }
