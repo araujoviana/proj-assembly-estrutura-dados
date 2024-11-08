@@ -67,4 +67,16 @@ public class Commands {
         return null;
 
     }
+
+    public String delete(Buffer buffer, Integer[] lineNumbers) {
+
+        if (lineNumbers.length == 2) {
+            return buffer.removeInterval(lineNumbers[0], lineNumbers[1]);
+        } else if (lineNumbers.length == 1) {
+            return buffer.removeLine(lineNumbers[0]);
+        } else {
+            return "comando delete precisa de dois inteiros válidos.";
+        }
+
+    }
 }
