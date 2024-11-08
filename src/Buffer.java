@@ -218,18 +218,15 @@ public class Buffer {
                 // Como jnz altera a ordem de execução do buffer então ele não retorna apenas a
                 // String contendo algum erro mas também retorna a instrução atual
                 case "jnz":
+                    JnzResult jnzResult = instructions.jnz(commandBuffer, current, parameters, registers);
 
-                    Object[] jnzResult = instructions.jnz(current, parameters, registers);
-
-                    result = (String) jnzResult[1];
-
-                    if (result != null) {
-                        return result;
-                    }
-                    else {
-                        current = (Node<String>) jnzResult[0];
+                    if (jnzResult.hasError()) {
+                        return jnzResult.error;
+                    } else {
+                        current = jnzResult.node;
                     }
                     break;
+
             }
 
             current = current.getNext();
