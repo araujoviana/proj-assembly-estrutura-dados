@@ -116,6 +116,31 @@ public class Repl {
             if (result != null) {
                 displayMessage(result, 2);
             }
+        } else if (command.equals("del") && splitInput.length > 1) {
+            // VERIFICAÇÕES AQUI
+            try {
+                String[] numberStrings = splitInput[1].split(" ");
+                Integer[] lineNumbers = new Integer[numberStrings.length];
+
+                for (int i = 0; i < numberStrings.length; i++) {
+                    lineNumbers[i] = Integer.parseInt(numberStrings[i]); // Converte cada número de linha para Integer
+                }
+
+                // Chama o comando ins no buffer
+                String result = commands.delete(buffer, lineNumbers);
+
+                if (result.startsWith("Linha removida")) {
+                    displayMessage(result, 0);
+                } else if (result != null) {
+                    displayMessage(result, 2);
+                }
+
+                // REVIEW Isso é necessário?
+            } catch (NumberFormatException e) {
+                displayMessage("formato de linha inválido.", 2);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                displayMessage("parâmetros insuficientes para o comando DEL.", 2);
+            }
         }
     }
 
