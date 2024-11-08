@@ -43,7 +43,7 @@ public class Buffer {
 
                 // HACK Buffer deveria se retornar a saída diretamente com REPL
                 System.out.println("Linha:\n" + originalLine + "\nAtualizada para:\n" + line);
-                return null;
+                return "atualizado";
             }
 
             // Insere antes de um número de linha maior, mantendo a ordem

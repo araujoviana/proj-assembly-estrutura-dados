@@ -22,7 +22,7 @@ public class Commands {
             if (command.equals(input)) {
                 return true;
             }
-        }
+        } 
         return false;
     }
 

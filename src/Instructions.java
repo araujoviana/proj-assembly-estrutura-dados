@@ -109,13 +109,45 @@ public class Instructions {
     public String add(String parameters, Registers registers) {
         String[] paramParts = parameters.split(" ");
 
-        // FIXME isso não funciona com apenas números
-        int val1 = registers.getRegisterValue(paramParts[0]);
-        int val2 = registers.getRegisterValue(paramParts[1]); // aqui!
+        // Obtém o valor do primeiro parâmetro (sempre registrador)
+        int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
 
-        // Realiza a soma e armazena o resultado no registrador 1
+        // Verifica se o segundo parâmetro é um número ou um registrador
+        int val2;
+        if (isValidNumber(paramParts[1])) {
+            // Se for um número, converte diretamente para inteiro
+            val2 = Integer.parseInt(paramParts[1]);
+        } else {
+            // Se não for um número, obtém o valor do registrador
+            val2 = registers.getRegisterValue(paramParts[1].charAt(0));
+        }
+
+        // Realiza a soma e armazena o resultado no primeiro registrador
         int result = val1 + val2;
-        registers.setRegisterValue(reg1, result);
+        registers.setRegisterValue(paramParts[0].charAt(0), result); // Atualiza o valor no primeiro registrador
+
+        return null;
+    }
+
+    public String mov(String parameters, Registers registers) {
+        String[] paramParts = parameters.split(" ");
+
+        // Obtém o registrador de destino como char
+        char regDestino = paramParts[0].charAt(0);
+
+        // Verifica se o segundo parâmetro é um número ou um registrador
+        int valor;
+        if (isValidNumber(paramParts[1])) {
+            // Se for um número, converte diretamente para inteiro
+            valor = Integer.parseInt(paramParts[1]);
+        } else {
+            // Se não for um número, obtém o valor do registrador de origem
+            char regOrigem = paramParts[1].charAt(0);
+            valor = registers.getRegisterValue(regOrigem);
+        }
+
+        // Move o valor para o registrador de destino
+        registers.setRegisterValue(regDestino, valor);
 
         return null;
     }

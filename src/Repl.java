@@ -41,7 +41,7 @@ public class Repl {
 
         // Verifica se o comando está vazio
         if (input.isEmpty()) {
-            displayMessage("entrada está vazia.", 3);
+            displayMessage("entrada está vazia.", 2);
             return false;
         }
         String[] splitInput = input.split(" ");
@@ -50,7 +50,7 @@ public class Repl {
 
         // Verifica se o primeiro termo é um comando válido
         if (!commands.isCommand(potentialCommand)) {
-            displayMessage("O comando fornecido não é válido.", 3);
+            displayMessage("O comando fornecido não é válido.", 2);
             return false;
         }
 
@@ -87,16 +87,16 @@ public class Repl {
                 if (result == null) {
                     // Comando foi bem-sucedido
                     displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters, 0);
-                } else {
+                } else if (result != "atualizado"){
                     // Comando retornou erro
-                    displayMessage(result, 3); 
+                    displayMessage(result, 2); 
                 }
 
             // REVIEW Isso é necessário?
             } catch (NumberFormatException e) {
-                displayMessage("formato de linha inválido.", 3);
+                displayMessage("formato de linha inválido.", 2);
             } catch (ArrayIndexOutOfBoundsException e) {
-                displayMessage("parâmetros insuficientes para o comando INS.", 3);
+                displayMessage("parâmetros insuficientes para o comando INS.", 2);
             }
         } else if (command.equals("run") && splitInput.length == 1) {
             // VERIFICAÇÕES AQUI
@@ -107,7 +107,7 @@ public class Repl {
             if (result == null) {
                 displayMessage("RUN PLACEHOLDER", 0);
             } else {
-                displayMessage(result, 3);
+                displayMessage(result, 2);
             }
         }
     }
