@@ -4,15 +4,11 @@
 /////////////////////////////////////////////
 
 public class Instructions {
-    // List of valid instruction mnemonics
-    String[] instructions = { "mov", "inc", "dec", "add", "sub", "mul", "div", "jnz", "out" };
-
-    public String[] getInstructions() {
-        return instructions;
-    }
 
     // Verifica se a string fornecida é uma instrução válida
-    public boolean isInstruction(String input) {
+    public static boolean isInstruction(String input) {
+        // Lista de todos as instruções
+        String[] instructions = { "mov", "inc", "dec", "add", "sub", "mul", "div", "jnz", "out" };
         for (String instruction : instructions) {
             if (instruction.equals(input)) {
                 return true;
