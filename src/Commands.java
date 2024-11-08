@@ -52,4 +52,19 @@ public class Commands {
 
         return buffer.evaluateBuffer();
     }
+
+    public String list(Buffer buffer) {
+        LinkedList<String> commandBuffer = buffer.getCommandBuffer();
+        // Verifica se há código carregado no buffer
+        if (commandBuffer.isEmpty()) {
+            return "nenhum código carregado na memória.";
+        }
+
+        // HACK evite prints fora do displayMessage
+
+        System.out.println(commandBuffer.toString());
+
+        return null;
+
+    }
 }

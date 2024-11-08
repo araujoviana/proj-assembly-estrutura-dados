@@ -87,12 +87,12 @@ public class Repl {
                 if (result == null) {
                     // Comando foi bem-sucedido
                     displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + parameters, 0);
-                } else if (result != "atualizado"){
+                } else if (result != "atualizado") {
                     // Comando retornou erro
-                    displayMessage(result, 2); 
+                    displayMessage(result, 2);
                 }
 
-            // REVIEW Isso é necessário?
+                // REVIEW Isso é necessário?
             } catch (NumberFormatException e) {
                 displayMessage("formato de linha inválido.", 2);
             } catch (ArrayIndexOutOfBoundsException e) {
@@ -104,15 +104,23 @@ public class Repl {
             // execução
             String result = commands.run(buffer);
 
-            if (result == null) {
-                displayMessage("RUN PLACEHOLDER", 0);
-            } else {
+            if (result != null) {
+                displayMessage(result, 2);
+            }
+        } else if (command.equals("list") && splitInput.length == 1) {
+            // VERIFICAÇÕES AQUI
+
+            // execução
+            String result = commands.list(buffer);
+
+            if (result != null) {
                 displayMessage(result, 2);
             }
         }
     }
 
-    // Exibe alguma mensagem para o usuário, podendo ser um erro, aviso ou informação
+    // Exibe alguma mensagem para o usuário, podendo ser um erro, aviso ou
+    // informação
     public void displayMessage(String message, int code) {
         switch (code) {
             case 0: // Informação
@@ -126,6 +134,5 @@ public class Repl {
                 break;
         }
     }
-
 
 }

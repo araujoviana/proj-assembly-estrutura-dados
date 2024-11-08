@@ -348,11 +348,10 @@ public boolean insertBefore(Node<T> node, T value) {
         StringBuilder sb = new StringBuilder();
         // Lista vazia
         if (head == null) {
-            return "[]";
+            return null;
         }
 
         Node<T> current = head;
-        sb.append("[");
 
         // Percorre a lista até o nó que volta ao head
         do {
@@ -360,11 +359,10 @@ public boolean insertBefore(Node<T> node, T value) {
             current = current.getNext();
 
             if (current != head) {
-                sb.append(", "); // Adiciona separador se não for o último nó
+                sb.append("\n"); // Adiciona separador se não for o último nó
             }
         } while (current != head);
 
-        sb.append("]");
         return sb.toString();
     }
 
