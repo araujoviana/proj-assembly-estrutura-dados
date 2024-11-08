@@ -60,6 +60,86 @@ public class Buffer {
         return null;
     }
 
+    public String removeLine(int lineNumber) {
+        // Inicia a busca a partir do cabeçalho da lista
+        Node<String> current = commandBuffer.getHead();
+
+        // Verifica se a lista está vazia e retorna uma mensagem de erro
+        if (current == null) {
+            return "a lista está vazia.";
+        }
+
+        do {
+            // Divide o valor da linha atual para obter o número da linha
+            String[] parts = current.getValue().split(" ", 2);
+            int existingLineNumber = Integer.parseInt(parts[0]);
+
+            // Verifica se esta é a linha que queremos remover
+            if (existingLineNumber == lineNumber) {
+                String lineToRemove = current.getValue();
+
+                // Usa removeNode(T) para remover o nó e verifica se a remoção foi bem-sucedida
+                boolean removed = commandBuffer.removeNode(lineToRemove);
+
+                if (removed) {
+                    System.out.println("linha removida:\n" + lineToRemove);
+                    return null;
+                } else {
+                    return "não foi possível remover a linha.";
+                }
+            }
+
+            current = current.getNext();
+        } while (current != commandBuffer.getHead());
+
+        // Se a linha não foi encontrada após percorrer a lista
+        return "linha " + lineNumber + " inexistente.";
+    }
+
+    public String removeInterval(int lineStart, int lineEnd) {
+        // Verifica se os parâmetros do intervalo são válidos
+        if (lineStart > lineEnd) {
+            return "intervalo inválido.";
+        }
+
+        Node<String> current = commandBuffer.getHead();
+        boolean removedAny = false;
+
+        // Verifica se a lista está vazia
+        if (current == null) {
+            return "a lista está vazia.";
+        }
+
+        do {
+            String[] parts = current.getValue().split(" ", 2);
+            int existingLineNumber = Integer.parseInt(parts[0]);
+
+            // Verifica se a linha está no intervalo
+            if (existingLineNumber >= lineStart && existingLineNumber <= lineEnd) {
+                String lineToRemove = current.getValue();
+                Node<String> nextNode = current.getNext();
+
+                // Tenta remover o nó e atualiza o indicador de remoção
+                boolean removed = commandBuffer.removeNode(lineToRemove);
+                if (removed) {
+                    removedAny = true;
+                    System.out.println("linha removida:\n" + lineToRemove);
+                }
+                current = nextNode;
+            } else {
+                current = current.getNext();
+            }
+
+        } while (current != commandBuffer.getHead());
+
+        // Verifica se alguma linha foi removida
+        if (removedAny) {
+            return null;
+        } else {
+            return "nenhuma linha encontrada no intervalo especificado.";
+        }
+    }
+
     public String evaluateBuffer() {
         // Check if the WHOLE BUFFER is good to go!
         // ...
