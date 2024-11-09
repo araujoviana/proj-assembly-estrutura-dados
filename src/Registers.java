@@ -3,12 +3,18 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
+/*
+ * Gerencia o conjunto de registradores de 'a' a 'z' utilizando uma lista encadeada
+ */
 public class Registers {
+    // A lista encadeada que armazena os registradores usa uma classe especial
+    // responsável por armazenar o nome e valor dos registradores
     private LinkedList<RegisterNode> registerList;
 
     public Registers() {
         registerList = new LinkedList<>();
 
+        // Adiciona registradores de 'a' a 'z' com valor inicial 0
         for (char reg = 'a'; reg <= 'z'; reg++) {
             registerList.append(new RegisterNode(reg, 0));
         }
@@ -31,12 +37,19 @@ public class Registers {
             current = current.getNext();
         } while (current != registerList.getHead());
 
-        // TODO Substitua por um valor realmente nulo ou menos perigoso
+        // REVIEW vale a pena? -> Substitua por um valor realmente nulo ou menos
+        // perigoso
         // Se não encontrar o valor...
         return 0;
 
     }
 
+    /**
+     * Define o valor de um registrador específico.
+     *
+     * @param reg   O nome do registrador
+     * @param value O novo valor a ser atribuído ao registrador
+     */
     public void setRegisterValue(char reg, int value) {
         Node<RegisterNode> current = registerList.getHead();
 
@@ -50,6 +63,12 @@ public class Registers {
 
     }
 
+    /*
+     * REVIEW
+     *
+     * Vou deixar isso aqui, mas se não tiver serventia até o final do projeto, pode
+     * deletar! NÃO ADICIONEI DOCSTRING
+     */
     public void resetAllRegisters() {
         Node<RegisterNode> current = registerList.getHead();
         if (current == null)
