@@ -98,10 +98,13 @@ public class Repl {
             String message = commands.insert(buffer, lineNumber, instruction, arguments);
 
             if (message == null) {
-                // Comando foi bem-sucedido
+                // Linha foi inserida
                 displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + arguments, 0);
-            } else if (message != "atualizado") {
-                // Comando retornou erro
+            } else if (message.startsWith("Linha:")) {
+                // Linha foi atualizada
+                displayMessage(message, 0);
+            } else {
+                // Comando falhou
                 displayMessage(message, 2);
             }
 
