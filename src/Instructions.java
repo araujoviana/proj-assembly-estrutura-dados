@@ -3,9 +3,19 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
+/**
+ * Fornece métodos para executar as instruções, além de verificar se as
+ * instruções são válidas e validar a sintaxe dos argumentos e executa operações
+ * com registradores.
+ */
 public class Instructions {
 
-    // Verifica se a string fornecida é uma instrução válida
+    /**
+     * Verifica se a string fornecida é uma instrução válida.
+     *
+     * @param input A string a ser verificada.
+     * @return true se a string for uma instrução válida, false caso contrário.
+     */
     public static boolean isInstruction(String input) {
         // Lista de todos as instruções
         String[] instructions = { "mov", "inc", "dec", "add", "sub", "mul", "div", "jnz", "out" };
@@ -18,81 +28,72 @@ public class Instructions {
     }
 
     /**
-     * Valida a sintaxe dos parâmetros de uma instrução.
+     * Valida a sintaxe dos argumentos de uma instrução.
      * 
      * @param instruction A instrução que está sendo verificada
-     * @param parameters  Os parâmetros a serem validados
-     * @return Uma string de erro se os parâmetros forem inválidos, ou null se forem
+     * @param arguments   Os argumentos a serem validados
+     * @return Uma string de erro se os argumentos forem inválidos, ou null se forem
      *         válidos
      */
-    public static String validateSyntax(String instruction, String parameters) {
-        String[] parts = parameters.split(" ");
+    public static String validateSyntax(String instruction, String arguments) {
+        String[] parts = arguments.split(" ");
 
         switch (instruction) {
+            // Essas instruções exigem dois argumentos: um registrador e um número ou um
+            // registrador
             case "mov":
             case "add":
             case "sub":
             case "mul":
             case "div":
-                // Essas instruções exigem dois parâmetros: um registrador e um número ou um
-                // registrador
+            case "jnz":
                 if (parts.length != 2) {
-                    return "Erro: A instrução " + instruction + " precisa de dois parâmetros válidos.";
+                    return "Erro: A instrução " + instruction + " precisa de dois argumentos válidos.";
                 }
                 if (!isValidRegister(parts[0])) {
-                    return "Erro: O primeiro parâmetro da instrução " + instruction
+                    return "Erro: O primeiro argumento da instrução " + instruction
                             + " deve ser um registrador válido (a-z).";
                 }
                 if (!isValidRegisterOrNumber(parts[1])) {
-                    return "Erro: O segundo parâmetro da instrução " + instruction
+                    return "Erro: O segundo argumento da instrução " + instruction
                             + " deve ser um número ou registrador válido.";
                 }
                 break;
 
+            // Essas instruções exigem apenas um argumento: um registrador
             case "inc":
             case "dec":
             case "out":
-                // Essas instruções exigem apenas um parâmetro: um registrador
                 if (parts.length != 1) {
-                    return "Erro: A instrução " + instruction + " precisa de um parâmetro válido.";
+                    return "Erro: A instrução " + instruction + " precisa de um argumento válido.";
                 }
                 if (!isValidRegister(parts[0])) {
-                    return "Erro: O parâmetro da instrução " + instruction + " deve ser um registrador válido (a-z).";
+                    return "Erro: O argumento da instrução " + instruction + " deve ser um registrador válido (a-z).";
                 }
                 break;
-
-            case "jnz":
-                // "jnz" exige um registrador e um número ou um registrador
-                if (parts.length != 2) {
-                    return "Erro: A instrução jnz precisa de dois parâmetros válidos.";
-                }
-                if (!isValidRegister(parts[0])) {
-                    return "Erro: O primeiro parâmetro da instrução jnz deve ser um registrador válido (a-z).";
-                }
-                if (!isValidRegisterOrNumber(parts[1])) {
-                    return "Erro: O segundo parâmetro da instrução jnz deve ser um número ou registrador válido.";
-                }
-                break;
-
             default:
                 return "Erro: Instrução desconhecida.";
         }
 
-        return null; // Se nenhum erro, retorna null (sintaxe válida)
+        return null; // Se nenhum erro, retorna null
     }
 
-    // Verifica se o parâmetro é um registrador válido (de 'a' a 'z')
-    // TODO renomear!!
+    /**
+     * Verifica se o argumento é um registrador válido (letra de 'a' a 'z').
+     *
+     * @param param O argumento a ser verificado.
+     * @return true se o argumento for um registrador válido, false caso contrário.
+     */
     private static boolean isValidRegister(String param) {
         return param.length() == 1 && param.matches("[a-z]");
     }
 
-    // Verifica se o parâmetro é um número ou um registrador válido
-    private static boolean isValidRegisterOrNumber(String param) {
-        return isValidRegister(param) || isValidNumber(param);
-    }
-
-    // Verifica se o parâmetro é um número válido (inteiro)
+    /**
+     * Verifica se o argumento é um número inteiro válido.
+     *
+     * @param param O argumento a ser verificado.
+     * @return true se o argumento for um número inteiro, false caso contrário.
+     */
     private static boolean isValidNumber(String param) {
         try {
             Integer.parseInt(param);
@@ -102,13 +103,34 @@ public class Instructions {
         }
     }
 
-    public static String add(String parameters, Registers registers) {
-        String[] paramParts = parameters.split(" ");
+    /**
+     * Verifica se o argumento é um número ou um registrador válido.
+     *
+     * @param param O argumento a ser verificado.
+     * @return true se o argumento for um número ou um registrador válido, false
+     *         caso contrário.
+     */
+    private static boolean isValidRegisterOrNumber(String param) {
+        return isValidRegister(param) || isValidNumber(param);
+    }
 
-        // Obtém o valor do primeiro parâmetro (sempre registrador)
+    /**
+     * Executa a instrução de adição entre o valor de um registrador e um
+     * segundo valor (registrador ou número).
+     * O resultado é armazenado no registrador especificado como primeiro argumento.
+     *
+     * @param arguments A string contendo os argumentos da instrução
+     * @param registers A instância que gerencia os valores dos registradores.
+     * @return null se a operação for bem-sucedida, ou uma string de erro se não
+     *         for.
+     */
+    public static String add(String arguments, Registers registers) {
+        String[] paramParts = arguments.split(" ");
+
+        // Obtém o valor do primeiro argumento (sempre registrador)
         int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
 
-        // Verifica se o segundo parâmetro é um número ou um registrador
+        // Verifica se o segundo argumento é um número ou um registrador
         int val2;
         if (isValidNumber(paramParts[1])) {
             // Se for um número, converte diretamente para inteiro
@@ -125,13 +147,23 @@ public class Instructions {
         return null;
     }
 
-    public static String mov(String parameters, Registers registers) {
-        String[] paramParts = parameters.split(" ");
+    /**
+     * Executa a instrução de movimentação entre um registrador de origem ou
+     * número e um registrador de destino. O valor do registrador de origem ou
+     * número é armazenado no registrador especificado como primeiro argumento.
+     *
+     * @param arguments A string contendo os argumentos da instrução
+     * @param registers A instância que gerencia os valores dos registradores.
+     * @return null se a operação for bem-sucedida, ou uma string de erro se não
+     *         for.
+     */
+    public static String mov(String arguments, Registers registers) {
+        String[] paramParts = arguments.split(" ");
 
         // Obtém o registrador de destino como char
         char regDestino = paramParts[0].charAt(0);
 
-        // Verifica se o segundo parâmetro é um número ou um registrador
+        // Verifica se o segundo argumento é um número ou um registrador
         int valor;
         if (isValidNumber(paramParts[1])) {
             // Se for um número, converte diretamente para inteiro
@@ -148,8 +180,17 @@ public class Instructions {
         return null;
     }
 
-    public static String out(String parameters, Registers registers) {
-        String[] paramParts = parameters.split(" ");
+    /**
+     * Executa a instrução de saída que imprime o valor armazenado em um registrador
+     * específico.
+     *
+     * @param arguments A string contendo o registrador cujo valor será exibido.
+     * @param registers A instância que gerencia os valores dos registradores.
+     * @return null se a operação for bem-sucedida, ou uma string de erro se não
+     *         for.
+     */
+    public static String out(String arguments, Registers registers) {
+        String[] paramParts = arguments.split(" ");
 
         // Obtém o valor do registrador especificado
         char reg = paramParts[0].charAt(0);
@@ -161,16 +202,36 @@ public class Instructions {
         return null;
     }
 
-    public static JnzResult jnz(LinkedList<String> commandBuffer, Node<String> current, String parameters,
+    /**
+     * Executa a instrução de jump não-zero, que altera a execução do buffer
+     * de comandos para a linha especificada, se o valor do registrador não for
+     * zero.
+     *
+     * @param commandBuffer A lista de comandos do buffer.
+     * @param current       O comando atual.
+     * @param arguments     A string contendo os argumentos da instrução, incluindo
+     *                      o registrador de verificação e o valor ou registrador
+     *                      alvo.
+     * @param registers     A instância que gerencia os valores dos registradores.
+     * @return Um objeto específico JnzResult contendo o novo nó de execução ou uma
+     *         mensagem de erro caso a operação seja inválida
+     */
+    public static JnzResult jnz(LinkedList<String> commandBuffer, Node<String> current, String arguments,
             Registers registers) {
-        String[] paramParts = parameters.split(" ");
 
+        // Divide os argumentos em partes, onde o primeiro é o registrador e o segundo é
+        // o alvo de comparação
+        String[] paramParts = arguments.split(" ");
+
+        // Obtém o valor do registrador especificado no primeiro argumento
         int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
 
+        // Se o valor do registrador for zero, não realiza o jump e retorna o nó atual
         if (val1 == 0) {
             return new JnzResult(current, null);
         }
 
+        // Obtém o segundo valor que pode ser um número ou o valor de outro registrador
         int val2;
         if (isValidNumber(paramParts[1])) {
             val2 = Integer.parseInt(paramParts[1]);
@@ -180,6 +241,7 @@ public class Instructions {
 
         Node<String> newCurrent = commandBuffer.getHead();
 
+        // Itera pela lista de comandos até encontrar um que comece com o valor de val2
         do {
             if (newCurrent.getValue().startsWith(Integer.toString(val2))) {
                 break;
@@ -187,10 +249,12 @@ public class Instructions {
             newCurrent = newCurrent.getNext();
         } while (newCurrent != commandBuffer.getHead());
 
+        // Se não encontrar um comando correspondente, retorna um erro
         if (newCurrent == null) {
             return new JnzResult(null, "posição de jump inválida");
         }
 
+        // Se encontrar um comando válido, retorna a nova instrução atual
         return new JnzResult(newCurrent, null);
     }
 
