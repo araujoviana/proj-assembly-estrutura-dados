@@ -25,7 +25,7 @@ public class Instructions {
      * @return Uma string de erro se os parâmetros forem inválidos, ou null se forem
      *         válidos
      */
-    public String validateSyntax(String instruction, String parameters) {
+    public static String validateSyntax(String instruction, String parameters) {
         String[] parts = parameters.split(" ");
 
         switch (instruction) {
@@ -83,17 +83,17 @@ public class Instructions {
 
     // Verifica se o parâmetro é um registrador válido (de 'a' a 'z')
     // TODO renomear!!
-    private boolean isValidRegister(String param) {
+    private static boolean isValidRegister(String param) {
         return param.length() == 1 && param.matches("[a-z]");
     }
 
     // Verifica se o parâmetro é um número ou um registrador válido
-    private boolean isValidRegisterOrNumber(String param) {
+    private static boolean isValidRegisterOrNumber(String param) {
         return isValidRegister(param) || isValidNumber(param);
     }
 
     // Verifica se o parâmetro é um número válido (inteiro)
-    private boolean isValidNumber(String param) {
+    private static boolean isValidNumber(String param) {
         try {
             Integer.parseInt(param);
             return true;
@@ -102,7 +102,7 @@ public class Instructions {
         }
     }
 
-    public String add(String parameters, Registers registers) {
+    public static String add(String parameters, Registers registers) {
         String[] paramParts = parameters.split(" ");
 
         // Obtém o valor do primeiro parâmetro (sempre registrador)
@@ -125,7 +125,7 @@ public class Instructions {
         return null;
     }
 
-    public String mov(String parameters, Registers registers) {
+    public static String mov(String parameters, Registers registers) {
         String[] paramParts = parameters.split(" ");
 
         // Obtém o registrador de destino como char
@@ -148,7 +148,7 @@ public class Instructions {
         return null;
     }
 
-    public String out(String parameters, Registers registers) {
+    public static String out(String parameters, Registers registers) {
         String[] paramParts = parameters.split(" ");
 
         // Obtém o valor do registrador especificado
@@ -161,7 +161,7 @@ public class Instructions {
         return null;
     }
 
-    public JnzResult jnz(LinkedList<String> commandBuffer, Node<String> current, String parameters,
+    public static JnzResult jnz(LinkedList<String> commandBuffer, Node<String> current, String parameters,
             Registers registers) {
         String[] paramParts = parameters.split(" ");
 
