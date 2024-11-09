@@ -91,7 +91,7 @@ public class Buffer {
 
         // Verifica se a lista está vazia
         if (current == null) {
-            return "a lista está vazia.";
+            return "a memória está vazia.";
         }
 
         do {
@@ -195,11 +195,13 @@ public class Buffer {
      *         execução ocorra sem problemas.
      */
     public String evaluateBuffer() {
-        // TODO Verificações
 
         Node<String> current = commandBuffer.getHead();
 
+        boolean jnzJumped = false; // Verifica se jnz fez algum pulo
+
         do {
+
             // Divide a linha em partes (número da linha, instrução e argumentos)
             String[] parts = current.getValue().split(" ", 3);
             String lineNumber = parts[0]; // Número da linha (não utilizado diretamente aqui)
@@ -208,12 +210,12 @@ public class Buffer {
 
             // Verifica se a instrução é válida
             if (!Instructions.isInstruction(instruction)) {
-                return "Erro: Instrução inválida na linha " + lineNumber + ": " + instruction;
+                return "instrução inválida na linha " + lineNumber + ": " + instruction;
             }
             // Valida a sintaxe dos argumentos da instrução
             String validationError = Instructions.validateSyntax(instruction, arguments);
             if (validationError != null) {
-                return "Erro na linha " + lineNumber + ": " + validationError;
+                return validationError;
             }
 
             // Mensagem retornada pelas instruções
@@ -225,6 +227,39 @@ public class Buffer {
                 case "add":
 
                     message = Instructions.add(arguments, registers);
+
+                    // Retorna possíveis erros
+                    if (message != null) {
+                        return message;
+                    }
+                    break;
+
+                // Subtrai dois registradores
+                case "sub":
+
+                    message = Instructions.sub(arguments, registers);
+
+                    // Retorna possíveis erros
+                    if (message != null) {
+                        return message;
+                    }
+                    break;
+
+                // Multiplica dois registradores
+                case "mul":
+
+                    message = Instructions.mul(arguments, registers);
+
+                    // Retorna possíveis erros
+                    if (message != null) {
+                        return message;
+                    }
+                    break;
+
+                // Divide dois registradores
+                case "div":
+
+                    message = Instructions.div(arguments, registers);
 
                     // Retorna possíveis erros
                     if (message != null) {
@@ -267,12 +302,17 @@ public class Buffer {
                         return jnzResult.error;
                     } else {
                         current = jnzResult.node;
+                        jnzJumped = true;
                     }
                     break;
 
             }
 
-            current = current.getNext();
+            if (!jnzJumped) {
+                current = current.getNext();
+            } else {
+                jnzJumped = false;
+            }
         } while (current != commandBuffer.getHead());
 
         return null; // Não retorna nenhum erro quando a execução ocorre normalmente

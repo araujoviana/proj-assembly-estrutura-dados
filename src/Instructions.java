@@ -48,14 +48,14 @@ public class Instructions {
             case "div":
             case "jnz":
                 if (parts.length != 2) {
-                    return "Erro: A instrução " + instruction + " precisa de dois argumentos válidos.";
+                    return "a instrução " + instruction + " precisa de dois argumentos válidos.";
                 }
                 if (!isValidRegister(parts[0])) {
-                    return "Erro: O primeiro argumento da instrução " + instruction
+                    return "o primeiro argumento da instrução " + instruction
                             + " deve ser um registrador válido (a-z).";
                 }
                 if (!isValidRegisterOrNumber(parts[1])) {
-                    return "Erro: O segundo argumento da instrução " + instruction
+                    return "o segundo argumento da instrução " + instruction
                             + " deve ser um número ou registrador válido.";
                 }
                 break;
@@ -65,14 +65,14 @@ public class Instructions {
             case "dec":
             case "out":
                 if (parts.length != 1) {
-                    return "Erro: A instrução " + instruction + " precisa de um argumento válido.";
+                    return "a instrução " + instruction + " precisa de um argumento válido.";
                 }
                 if (!isValidRegister(parts[0])) {
-                    return "Erro: O argumento da instrução " + instruction + " deve ser um registrador válido (a-z).";
+                    return "o argumento da instrução " + instruction + " deve ser um registrador válido (a-z).";
                 }
                 break;
             default:
-                return "Erro: Instrução desconhecida.";
+                return "instrução desconhecida.";
         }
 
         return null; // Se nenhum erro, retorna null
@@ -142,6 +142,105 @@ public class Instructions {
 
         // Realiza a soma e armazena o resultado no primeiro registrador
         int result = val1 + val2;
+        registers.setRegisterValue(paramParts[0].charAt(0), result); // Atualiza o valor no primeiro registrador
+
+        return null;
+    }
+
+    /**
+     * Executa a instrução de subtração entre o valor de um registrador e um
+     * segundo valor (registrador ou número).
+     * O resultado é armazenado no registrador especificado como primeiro argumento.
+     *
+     * @param arguments A string contendo os argumentos da instrução
+     * @param registers A instância que gerencia os valores dos registradores.
+     * @return null se a operação for bem-sucedida, ou uma string de erro se não
+     *         for.
+     */
+    public static String sub(String arguments, Registers registers) {
+        String[] paramParts = arguments.split(" ");
+
+        // Obtém o valor do primeiro argumento (sempre registrador)
+        int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
+
+        // Verifica se o segundo argumento é um número ou um registrador
+        int val2;
+        if (isValidNumber(paramParts[1])) {
+            // Se for um número, converte diretamente para inteiro
+            val2 = Integer.parseInt(paramParts[1]);
+        } else {
+            // Se não for um número, obtém o valor do registrador
+            val2 = registers.getRegisterValue(paramParts[1].charAt(0));
+        }
+
+        // Realiza a subtração e armazena o resultado no primeiro registrador
+        int result = val1 - val2;
+        registers.setRegisterValue(paramParts[0].charAt(0), result); // Atualiza o valor no primeiro registrador
+
+        return null;
+    }
+
+    /**
+     * Executa a instrução de multiplicação entre o valor de um registrador e um
+     * segundo valor (registrador ou número).
+     * O resultado é armazenado no registrador especificado como primeiro argumento.
+     *
+     * @param arguments A string contendo os argumentos da instrução
+     * @param registers A instância que gerencia os valores dos registradores.
+     * @return null se a operação for bem-sucedida, ou uma string de erro se não
+     *         for.
+     */
+    public static String mul(String arguments, Registers registers) {
+        String[] paramParts = arguments.split(" ");
+
+        // Obtém o valor do primeiro argumento (sempre registrador)
+        int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
+
+        // Verifica se o segundo argumento é um número ou um registrador
+        int val2;
+        if (isValidNumber(paramParts[1])) {
+            // Se for um número, converte diretamente para inteiro
+            val2 = Integer.parseInt(paramParts[1]);
+        } else {
+            // Se não for um número, obtém o valor do registrador
+            val2 = registers.getRegisterValue(paramParts[1].charAt(0));
+        }
+
+        // Realiza a multiplicação e armazena o resultado no primeiro registrador
+        int result = val1 * val2;
+        registers.setRegisterValue(paramParts[0].charAt(0), result); // Atualiza o valor no primeiro registrador
+
+        return null;
+    }
+
+    /**
+     * Executa a instrução de divisão (de inteiros) entre o valor de um registrador
+     * e um segundo valor (registrador ou número).
+     * O resultado é armazenado no registrador especificado como primeiro argumento.
+     *
+     * @param arguments A string contendo os argumentos da instrução
+     * @param registers A instância que gerencia os valores dos registradores.
+     * @return null se a operação for bem-sucedida, ou uma string de erro se não
+     *         for.
+     */
+    public static String div(String arguments, Registers registers) {
+        String[] paramParts = arguments.split(" ");
+
+        // Obtém o valor do primeiro argumento (sempre registrador)
+        int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
+
+        // Verifica se o segundo argumento é um número ou um registrador
+        int val2;
+        if (isValidNumber(paramParts[1])) {
+            // Se for um número, converte diretamente para inteiro
+            val2 = Integer.parseInt(paramParts[1]);
+        } else {
+            // Se não for um número, obtém o valor do registrador
+            val2 = registers.getRegisterValue(paramParts[1].charAt(0));
+        }
+
+        // Realiza a divisão e armazena o resultado no primeiro registrador
+        int result = val1 / val2;
         registers.setRegisterValue(paramParts[0].charAt(0), result); // Atualiza o valor no primeiro registrador
 
         return null;
@@ -228,7 +327,7 @@ public class Instructions {
 
         // Se o valor do registrador for zero, não realiza o jump e retorna o nó atual
         if (val1 == 0) {
-            return new JnzResult(current, null);
+            return new JnzResult(current.getNext(), null);
         }
 
         // Obtém o segundo valor que pode ser um número ou o valor de outro registrador
