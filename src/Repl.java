@@ -137,8 +137,8 @@ public class Repl {
             // Chama o comando list no buffer e recebe qualquer mensagem retornada
             String message = commands.list(buffer);
 
-            // Verifica se a mensagem começa com um número
-            if (message.matches("^[0-9]")) {
+            // Verifica se a mensagem começa com um erro
+            if (message != null && !message.startsWith("nenhum")) {
                 displayMessage(message, 0);
 
             } else if (message != null) {
@@ -164,7 +164,7 @@ public class Repl {
                 String message = commands.delete(buffer, lineNumbers);
 
                 // Expressão regular para começar com: "Linha(s opcional) removida(s opcional)?"
-                if (message.matches("^Linha(s)? removida(s)?$")) {
+                if (message.startsWith("Linha")) {
                     displayMessage(message, 0);
                 } else if (message != null) {
                     // Comando retornou erro
@@ -173,7 +173,7 @@ public class Repl {
 
             } catch (NumberFormatException e) {
                 displayMessage("número de linha para o comando " + command.toUpperCase() + " inválido.", 2);
-            } 
+            }
 
             // Subsitui o conteúdo do buffer atual com o de um arquivo .ed1
         } else if (command.equals("load") && splitInput.length > 1) {
