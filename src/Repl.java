@@ -7,6 +7,7 @@
  * Implementa a lógica de um REPL que processa os comandos inseridos pelo usuário e
  * os executa se comunicando com o buffer do código carregado.
  */
+
 public class Repl {
 
     private Commands commands; // Comandos do REPL
@@ -85,27 +86,38 @@ public class Repl {
         }
         // Insere uma instrução em uma linha específica
         else if (command.equals("ins") && splitInput.length > 1 && splitInput.length < 6) {
+
             // Isola o número da linha, a instrução e os argumentos
             String[] insertArguments = splitInput[1].split(" ", 3);
 
-            int lineNumber = Integer.parseInt(insertArguments[0]); // Número da linha da instrução
-            String instruction = insertArguments[1]; // Instrução
+            // Verifica se o número de linha é um Integer ou se a instrução está completa
+            try {
+                int lineNumber = Integer.parseInt(insertArguments[0]); // Número da linha da instrução
 
-            // Arguments são strings vazias se não forem preenchidas
-            String arguments = insertArguments.length > 2 ? insertArguments[2] : "";
+                String instruction = insertArguments[1]; // Instrução
 
-            // Chama o comando insert no buffer e recebe qualquer mensagem retornada
-            String message = commands.insert(buffer, lineNumber, instruction, arguments);
+                // Arguments são strings vazias se não forem preenchidas
+                String arguments = insertArguments.length > 2 ? insertArguments[2] : "";
 
-            if (message == null) {
-                // Linha foi inserida
-                displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + arguments, 0);
-            } else if (message.startsWith("Linha:")) {
-                // Linha foi atualizada
-                displayMessage(message, 0);
-            } else {
-                // Comando falhou
-                displayMessage(message, 2);
+                // Chama o comando insert no buffer e recebe qualquer mensagem retornada
+                String message = commands.insert(buffer, lineNumber, instruction, arguments);
+
+                if (message == null) {
+                    // Linha foi inserida
+                    displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + arguments, 0);
+                } else if (message.startsWith("Linha:")) {
+                    // Linha foi atualizada
+                    displayMessage(message, 0);
+                } else {
+                    // Comando falhou
+                    displayMessage(message, 2);
+                }
+
+            } catch (NumberFormatException e) {
+                displayMessage("número de linha para o comando " + command.toUpperCase() + " inválido.", 2);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                displayMessage("instrução incompleta para a linha inserida no comando "
+                        + command.toUpperCase() + ".", 2);
             }
 
             // Executa as instruções armazenadas no buffer
@@ -140,21 +152,28 @@ public class Repl {
 
             // Isola o número da linha ou intervalo de linhas
             String[] numberStrings = splitInput[1].split(" ");
-            Integer[] lineNumbers = new Integer[numberStrings.length];
-            for (int i = 0; i < numberStrings.length; i++) {
-                lineNumbers[i] = Integer.parseInt(numberStrings[i]); // Converte cada número de linha para Integer
-            }
 
-            // Chama o comando delete no buffer e recebe qualquer mensagem retornada
-            String message = commands.delete(buffer, lineNumbers);
+            // Verifica se o número de linha é um Integer
+            try {
+                Integer[] lineNumbers = new Integer[numberStrings.length];
+                for (int i = 0; i < numberStrings.length; i++) {
+                    lineNumbers[i] = Integer.parseInt(numberStrings[i]); // Converte cada número de linha para Integer
+                }
 
-            // Expressão regular para começar com: "Linha(s opcional) removida(s opcional)?"
-            if (message.matches("^Linha(s)? removida(s)?$")) {
-                displayMessage(message, 0);
-            } else if (message != null) {
-                // Comando retornou erro
-                displayMessage(message, 2);
-            }
+                // Chama o comando delete no buffer e recebe qualquer mensagem retornada
+                String message = commands.delete(buffer, lineNumbers);
+
+                // Expressão regular para começar com: "Linha(s opcional) removida(s opcional)?"
+                if (message.matches("^Linha(s)? removida(s)?$")) {
+                    displayMessage(message, 0);
+                } else if (message != null) {
+                    // Comando retornou erro
+                    displayMessage(message, 2);
+                }
+
+            } catch (NumberFormatException e) {
+                displayMessage("número de linha para o comando " + command.toUpperCase() + " inválido.", 2);
+            } 
 
             // Subsitui o conteúdo do buffer atual com o de um arquivo .ed1
         } else if (command.equals("load") && splitInput.length > 1) {
@@ -188,6 +207,8 @@ public class Repl {
                 // Comando retornou erro
                 displayMessage(message, 2);
             }
+        } else {
+            displayMessage("argumentos para o comando " + command.toUpperCase() + " insuficientes", 2);
         }
 
         // Usuário não executou o comando EXIT
