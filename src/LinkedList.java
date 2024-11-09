@@ -281,11 +281,6 @@ public class LinkedList<T> {
         count = 0;
     }
 
-    /**
-     * Retorna uma representação em string da lista encadeada.
-     *
-     * @return uma string representando a lista encadeada
-     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
