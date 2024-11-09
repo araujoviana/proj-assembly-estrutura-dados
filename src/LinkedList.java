@@ -3,15 +3,11 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
-// REVIEW verificar ortografia de algum desses comentários...
-// REVIEW Alterar/adicionar métodos da classe de acordo com as necessidades
-
 // Lista duplamente encadeada circular genérica
 public class LinkedList<T> {
 
     private Node<T> head; // Primeiro nó da lista
     private Node<T> tail; // Último nó da lista
-    // private Node<T> current; // Nó atual da lista // REVIEW
     private int count; // Quantidade de nós na lista
 
     public LinkedList() {
@@ -23,7 +19,7 @@ public class LinkedList<T> {
     /**
      * Adiciona um nó no final da lista encadeada, tornando-o o tail
      *
-     * @param value valor a ser armazenado no novo nó
+     * @param value O valor a ser armazenado no novo nó
      */
     public void append(T value) {
         Node<T> newNode = new Node<>(value);
@@ -49,9 +45,9 @@ public class LinkedList<T> {
     }
 
     /**
-     * Adiciona um nó no começo da lista encadeada, tornando-o o head
+     * Adiciona o nó no começo da lista encadeada, tornando-o o head
      *
-     * @param value valor a ser armazenado no novo nó
+     * @param value O valor a ser armazenado no novo nó
      */
     public void insert(T value) {
         Node<T> newNode = new Node<>(value);
@@ -75,51 +71,53 @@ public class LinkedList<T> {
         count++;
 
     }
-/**
- * Insere um nó antes do nó especificado na lista.
- *
- * @param node O nó antes do qual o novo nó será inserido.
- * @param value O valor a ser armazenado no novo nó.
- * @return true se a inserção for bem-sucedida, false se o nó especificado não for encontrado.
- */
-public boolean insertBefore(Node<T> node, T value) {
-    // Verifica se a lista está vazia
-    if (head == null) {
-        return false;
-    }
-
-    Node<T> current = head;
-
-    // Percorre a lista até encontrar o nó especificado
-    do {
-        if (current.equals(node)) {
-            Node<T> newNode = new Node<>(value);
-
-            // Se o nó a ser inserido é o head
-            if (current == head) {
-                insert(value); // Usa o método insert para adicionar no começo
-                return true;
-            }
-
-            Node<T> prevNode = current.getPrev();
-            prevNode.setNext(newNode);  // O nó anterior agora aponta para o novo nó
-            current.setPrev(newNode);   // O nó atual agora aponta para o novo nó
-            newNode.setNext(current);   // O novo nó aponta para o nó atual
-            newNode.setPrev(prevNode);  // O novo nó aponta para o nó anterior
-
-            count++;  // Incrementa o número de nós
-            return true;
-        }
-        current = current.getNext();
-    } while (current != head);
-
-    return false; // Nó não encontrado
-}
 
     /**
-     * Remove o nó no início da lista (head) e retorna o nó removido.
+     * Insere um nó antes do nó especificado na lista.
      *
-     * @return o nó removido ou null se a lista estiver vazia
+     * @param node  O nó antes do qual o novo nó será inserido.
+     * @param value O valor a ser armazenado no novo nó.
+     * @return true se a inserção for bem-sucedida, false se o nó especificado não
+     *         for encontrado.
+     */
+    public boolean insertBefore(Node<T> node, T value) {
+        // Verifica se a lista está vazia
+        if (head == null) {
+            return false;
+        }
+
+        Node<T> current = head;
+
+        // Percorre a lista até encontrar o nó especificado
+        do {
+            if (current.equals(node)) {
+                Node<T> newNode = new Node<>(value);
+
+                // Se o nó a ser inserido é o head
+                if (current == head) {
+                    insert(value); // Usa o método insert para adicionar no começo
+                    return true;
+                }
+
+                Node<T> prevNode = current.getPrev();
+                prevNode.setNext(newNode); // O nó anterior agora aponta para o novo nó
+                current.setPrev(newNode); // O nó atual agora aponta para o novo nó
+                newNode.setNext(current); // O novo nó aponta para o nó atual
+                newNode.setPrev(prevNode); // O novo nó aponta para o nó anterior
+
+                count++; // Incrementa o número de nós
+                return true;
+            }
+            current = current.getNext();
+        } while (current != head);
+
+        return false; // Nó não encontrado
+    }
+
+    /**
+     * Remove o nó head e o retorna.
+     *
+     * @return O nó removido ou null se a lista estiver vazia
      */
     public Node<T> removeHead() {
         // Se a lista estiver vazia, retorna null
@@ -145,7 +143,7 @@ public boolean insertBefore(Node<T> node, T value) {
     }
 
     /**
-     * Remove o nó no final da lista (tail) e retorna o nó removido.
+     * Remove o nó tail e o retorna.
      *
      * @return o nó removido ou null se a lista estiver vazia
      */
@@ -262,61 +260,6 @@ public boolean insertBefore(Node<T> node, T value) {
         } while (current != head);
 
         return null; // Valor não encontrado
-    }
-
-    /**
-     * Retorna a quantidade de nós na lista.
-     *
-     * @return o número de nós na lista
-     */
-    public int getCount() {
-        return count;
-    }
-
-    /**
-     * Verifica se a lista contém o valor especificado.
-     *
-     * @param value o valor a ser procurado
-     * @return true se o valor está na lista, false caso contrário
-     */
-    public boolean contains(T value) {
-        if (head == null) {
-            return false;
-        }
-
-        Node<T> current = head;
-        do {
-            if (current.getValue().equals(value)) {
-                return true;
-            }
-            current = current.getNext();
-        } while (current != head);
-
-        return false;
-    }
-
-    /**
-     * Retorna o índice do primeiro nó com o valor especificado.
-     *
-     * @param value o valor a ser procurado
-     * @return o índice do nó ou -1 se o valor não for encontrado
-     */
-    public int indexOf(T value) {
-        if (head == null) {
-            return -1;
-        }
-
-        Node<T> current = head;
-        int index = 0;
-        do {
-            if (current.getValue().equals(value)) {
-                return index;
-            }
-            current = current.getNext();
-            index++;
-        } while (current != head);
-
-        return -1; // Valor não encontrado
     }
 
     /**
