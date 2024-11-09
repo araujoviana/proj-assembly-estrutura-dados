@@ -8,12 +8,15 @@ import java.io.FileReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.IDN;
 
-// REVIEW descrição
-// Age como um buffer que armazena o código atualmente carregado no REPL 
+/**
+ * Gerencia o buffer contendo o código carregado no REPL. Utiliza uma lista
+ * encadeada para armazenar as linhas de código.
+ */
 public class Buffer {
 
-    // Armazena todos os comandos carregados
+    // Armazena todos os comandos carregados em uma lista encadeada
     private LinkedList<String> commandBuffer;
     // Armazena todos os registradores carregados
     private Registers registers;
@@ -23,13 +26,25 @@ public class Buffer {
         registers = new Registers();
     }
 
-    public String insertLine(int lineNumber, String instruction, String parameters) {
-        // Constrói a linha completa a partir dos parâmetros
-        String line = lineNumber + " " + instruction + " " + parameters;
+    /**
+     * Insere uma linha de código no buffer na posição especificada, com a instrução
+     * e os argumentos fornecidos. Se a linha já existir, ela será atualizada.
+     * Caso o número da linha seja maior do que as linhas existentes, a linha será
+     * inserida no final.
+     * 
+     * @param lineNumber  o número da linha onde a instrução deve ser inserida ou
+     *                    atualizada
+     * @param instruction a instrução a ser inserida
+     * @param arguments   os argumentos associados à instrução
+     * @return uma mensagem indicando se a operação foi bem-sucedida ou não
+     */
+    public String insertLine(int lineNumber, String instruction, String arguments) {
+        // Constrói a linha completa a partir dos argumentos
+        String line = lineNumber + " " + instruction + " " + arguments;
 
         Node<String> current = commandBuffer.getHead();
 
-        // Verifica se a lista está vazia e insere diretamente se for o caso
+        // Verifica se a lista está vazia e insere diretamente
         if (current == null) {
             commandBuffer.append(line);
             return null;
@@ -47,9 +62,7 @@ public class Buffer {
 
                 current.setValue(line);
 
-                // HACK Buffer deveria se retornar a saída diretamente com REPL
-                System.out.println("Linha:\n" + originalLine + "\nAtualizada para:\n" + line);
-                return "atualizado";
+                return "Linha:\n" + originalLine + "\nAtualizada para:\n";
             }
 
             // Insere antes de um número de linha maior, mantendo a ordem
@@ -66,11 +79,17 @@ public class Buffer {
         return null;
     }
 
+    /**
+     * Remove a linha de código especificada do buffer.
+     * 
+     * @param lineNumber o número da linha a ser removida
+     * @return uma mensagem indicando se a operação foi bem-sucedida ou não
+     */
     public String removeLine(int lineNumber) {
-        // Inicia a busca a partir do cabeçalho da lista
+
         Node<String> current = commandBuffer.getHead();
 
-        // Verifica se a lista está vazia e retorna uma mensagem de erro
+        // Verifica se a lista está vazia
         if (current == null) {
             return "a lista está vazia.";
         }
@@ -84,27 +103,36 @@ public class Buffer {
             if (existingLineNumber == lineNumber) {
                 String lineToRemove = current.getValue();
 
-                // Usa removeNode(T) para remover o nó e verifica se a remoção foi bem-sucedida
+                // Remove o nó e verifica se a remoção foi bem-sucedida
                 boolean removed = commandBuffer.removeNode(lineToRemove);
 
                 if (removed) {
                     return "Linha removida:\n" + lineToRemove;
                 } else {
-                    return "não foi possível remover a linha.";
+                    return "não foi possível encontrar a linha " + lineToRemove + ".";
                 }
             }
 
             current = current.getNext();
         } while (current != commandBuffer.getHead());
 
+        // REVIEW reduntante visto linha 111?
         // Se a linha não foi encontrada após percorrer a lista
         return "linha " + lineNumber + " inexistente.";
     }
 
+    /**
+     * Remove um intervalo de linhas do buffer. As linhas a serem removidas devem
+     * estar dentro do intervalo especificado.
+     * 
+     * @param lineStart o número da linha inicial do intervalo
+     * @param lineEnd   o número da linha final do intervalo
+     * @return uma mensagem indicando se a operação foi bem-sucedida ou não
+     */
     // FIXME Remove apenas o primeiro nó se intervalo começar no inicio da lista
     public String removeInterval(int lineStart, int lineEnd) {
         // Verifica se os parâmetros do intervalo são válidos
-        if (lineStart > lineEnd) {
+        if (lineStart > lineEnd || lineStart == lineEnd) {
             return "intervalo inválido.";
         }
 
@@ -117,12 +145,12 @@ public class Buffer {
             return "a lista está vazia.";
         }
 
-        Node<String> nextNode = current.getNext(); // Guardando o próximo nó
+        Node<String> nextNode = current.getNext();
 
         do {
             // Divide o valor da linha atual para obter o número da linha
-            String[] parts = current.getValue().split(" ", 2);
-            int existingLineNumber = Integer.parseInt(parts[0]);
+            String[] currentParts = current.getValue().split(" ", 2);
+            int existingLineNumber = Integer.parseInt(currentParts[0]);
 
             // Verifica se a linha está no intervalo
             if (existingLineNumber >= lineStart && existingLineNumber <= lineEnd) {
@@ -136,7 +164,7 @@ public class Buffer {
                     removedLines.append(lineToRemove).append("\n");
                 }
 
-                // Como removemos o nó atual, precisamos reconfigurar o próximo nó
+                // reconfigura o próximo nó
                 current = nextNode;
             } else {
                 current = nextNode;
@@ -158,67 +186,82 @@ public class Buffer {
         }
     }
 
+    /**
+     * Avalia e executa cada linha no buffer de comandos conforme a lógica das
+     * instruções definidas.
+     * 
+     * @return uma mensagem de erro em caso de instrução inválida ou erro de
+     *         sintaxe, ou retorna null caso todas as instruções sejam válidas e a
+     *         execução ocorra sem problemas.
+     */
     public String evaluateBuffer() {
-        // Check if the WHOLE BUFFER is good to go!
-        // ...
+        // TODO Verificações
 
         Node<String> current = commandBuffer.getHead();
-        Instructions instructions = new Instructions();
 
         do {
-            // Divide a linha em partes (número da linha, instrução e parâmetros)
+            // Divide a linha em partes (número da linha, instrução e argumentos)
             String[] parts = current.getValue().split(" ", 3);
             String lineNumber = parts[0]; // Número da linha (não utilizado diretamente aqui)
             String instruction = parts[1]; // Instrução (ex: 'mov', 'add')
-            String parameters = parts[2]; // Parâmetros da instrução
+            String arguments = parts[2]; // Argumentos da instrução
 
             // Verifica se a instrução é válida
-            if (!instructions.isInstruction(instruction)) {
+            if (!Instructions.isInstruction(instruction)) {
                 return "Erro: Instrução inválida na linha " + lineNumber + ": " + instruction;
             }
-            // Valida a sintaxe dos parâmetros da instrução
-            String validationError = instructions.validateSyntax(instruction, parameters);
+            // Valida a sintaxe dos argumentos da instrução
+            String validationError = Instructions.validateSyntax(instruction, arguments);
             if (validationError != null) {
                 return "Erro na linha " + lineNumber + ": " + validationError;
             }
 
             // Mensagem retornada pelas instruções
-            String result;
+            String message;
 
             // Avalia comando respectivo
             switch (instruction) {
+                // Adiciona dois registradores
                 case "add":
 
-                    result = instructions.add(parameters, registers);
+                    message = Instructions.add(arguments, registers);
 
                     // Retorna possíveis erros
-                    if (result != null) {
-                        return result;
+                    if (message != null) {
+                        return message;
                     }
                     break;
 
+                // Define um valor para um registrador
                 case "mov":
 
-                    result = instructions.mov(parameters, registers);
+                    message = Instructions.mov(arguments, registers);
 
-                    if (result != null) {
-                        return result;
+                    // Retorna possíveis erros
+                    if (message != null) {
+                        return message;
                     }
 
                     break;
+
+                // Imprime o valor de um registrador
                 case "out":
 
-                    result = instructions.out(parameters, registers);
+                    message = Instructions.out(arguments, registers);
 
-                    if (result != null) {
-                        return result;
+                    // Retorna possíveis erros
+                    if (message != null) {
+                        return message;
                     }
 
                     break;
-                // Como jnz altera a ordem de execução do buffer então ele não retorna apenas a
-                // String contendo algum erro mas também retorna a instrução atual
+
+                // Pula para uma linha especifica se o valor
+                // do primeiro registrador não for zero
                 case "jnz":
-                    JnzResult jnzResult = instructions.jnz(commandBuffer, current, parameters, registers);
+                    // Como jnz altera a ordem de execução do buffer então ele retorna a String
+                    // contendo alguma mensagem e a nova instrução atual
+                    JnzResult jnzResult = Instructions.jnz(commandBuffer, current, arguments, registers);
 
                     if (jnzResult.hasError()) {
                         return jnzResult.error;
@@ -235,35 +278,64 @@ public class Buffer {
         return null; // Não retorna nenhum erro quando a execução ocorre normalmente
     }
 
+    /**
+     * Carrega o conteúdo de um arquivo pelo caminho
+     * fornecido para o buffer.
+     *
+     * @param filePath O caminho do arquivo.
+     * @return Uma mensagem de erro se ocorrer erro na operação do
+     *         arquivo, ou null se for bem-sucedida.
+     */
     public String loadBuffer(String filePath) {
 
         // Verificações, presumindo que tudo deu certo...
+
+        // Limpa o buffer de comandos antes de carregar novos dados
         commandBuffer.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String currentLine;
+            // Lê o arquivo linha por linha e adiciona cada linha ao buffer de comandos
             while ((currentLine = br.readLine()) != null) {
                 commandBuffer.append(currentLine);
             }
 
             // TODO Atualizar o fileName
         } catch (IOException e) {
+            // Retorna uma mensagem de erro se ocorrer uma exceção durante a leitura do
+            // arquivo
             return "erro ao ler o arquivo " + filePath + ".";
         }
 
         return null;
     }
 
+    /**
+     * Salva o conteúdo do buffer em um arquivo especificado pelo caminho fornecido.
+     *
+     * @param filePath O caminho do arquivo
+     * @return Uma mensagem de erro se ocorrer algum erro durante a operação, ou
+     *         null se for bem-sucedida.
+     */
     public String saveBuffer(String filePath) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+            // Escreve o conteúdo do buffer no arquivo
             bw.write(commandBuffer.toString());
             bw.newLine();
+
         } catch (IOException e) {
+            // Retorna uma mensagem de erro se ocorrer uma exceção durante a gravação do
+            // arquivo
             return "erro ao salvar o arquivo " + ((filePath == "") ? " sem nome" : filePath) + ".";
         }
 
         return null;
     }
 
+    /**
+     * Retorna o buffer de comandos.
+     *
+     * @return O buffer de comandos como uma LinkedList de Strings.
+     */
     public LinkedList<String> getCommandBuffer() {
         return commandBuffer;
     }
