@@ -3,11 +3,8 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.Scanner;
 
 /**
  * Gerencia o buffer contendo o código carregado no REPL. Utiliza uma lista
@@ -559,6 +556,23 @@ public class Buffer {
     public String saveBuffer(String loadedFileName, String currentBufferFileName) {
         if (commandBuffer.isEmpty()) {
             return "não há nenhum código na memória atualmente.";
+        }
+        // Verifica se o arquivo já existe
+        File file = new File(loadedFileName);
+        if (file.exists()) {
+            Scanner scanner = new Scanner(System.in);
+            String response;
+
+            while (true) {
+                System.out.print("O arquivo " + loadedFileName + " já existe. Deseja sobrescrevê-lo? (S/N)\n> ");
+                response = scanner.nextLine().trim().toLowerCase();
+
+                if (response.equals("s")) {
+                    break;
+                } else if (response.equals("n")) {
+                    return "operação de salvamento cancelada pelo usuário.";
+                }
+            }
         }
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(loadedFileName))) {

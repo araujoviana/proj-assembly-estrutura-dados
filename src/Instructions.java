@@ -390,18 +390,20 @@ public class Instructions {
         }
 
         Node<String> newCurrent = commandBuffer.getHead();
+        boolean newCurrentIsValid = false;
 
         // Itera pela lista de comandos até encontrar um que comece com o valor de val2
         do {
             if (newCurrent.getValue().startsWith(Integer.toString(val2))) {
+                newCurrentIsValid = true;
                 break;
             }
             newCurrent = newCurrent.getNext();
         } while (newCurrent != commandBuffer.getHead());
 
         // Se não encontrar um comando correspondente, retorna um erro
-        if (newCurrent == null) {
-            return new JnzResult(null, "posição de jump inválida");
+        if (!newCurrentIsValid) {
+            return new JnzResult(null, "linha de jump " + paramParts[1]+ " inválida");
         }
 
         // Se encontrar um comando válido, retorna a nova instrução atual
