@@ -28,6 +28,10 @@ public class Repl {
      * @return entrada formatada tipo "10 mov a 5"
      */
     public String formatInput(String input) {
+        // Não força o nome do arquivo carregado a ser minúsculo
+        if (input.toLowerCase().startsWith("load ")) {
+            return "load " + input.substring(5).replaceAll("\\s+", " ").trim();
+        }
         return input.toLowerCase().replaceAll("\\s+", " ").trim();
     }
 

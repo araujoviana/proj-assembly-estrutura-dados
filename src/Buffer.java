@@ -132,8 +132,26 @@ public class Buffer {
     // FIXME Remove apenas o primeiro nó se intervalo começar no inicio da lista
     public String removeInterval(int lineStart, int lineEnd) {
         // Verifica se os parâmetros do intervalo são válidos
-        if (lineStart > lineEnd || lineStart == lineEnd) {
-            return "intervalo inválido.";
+        if (lineStart > lineEnd) {
+            return "inicio do intervalo maior que o final.";
+        } else if (lineStart == lineEnd) {
+            return "intervalos iguais.";
+        }
+
+        // Verifica se o intervalo está dentro do código
+        String[] headParts = commandBuffer.getHead().getValue().split(" ", 2);
+        int headLineNumber = Integer.parseInt(headParts[0]);
+        String[] tailParts = commandBuffer.getTail().getValue().split(" ", 2);
+        int tailLineNumber = Integer.parseInt(tailParts[0]);
+
+        if (lineStart < headLineNumber) {
+            return "intervalo inicia antes da linha do começo.";
+        } else if (lineEnd < headLineNumber) {
+            return "intervalo termina antes da linha do começo.";
+        } else if (lineStart > tailLineNumber) {
+            return "intervalo inicia depois da linha do final.";
+        } else if (lineEnd > tailLineNumber) {
+            return "intervalo termina depois da linha do final.";
         }
 
         Node<String> current = commandBuffer.getHead();
