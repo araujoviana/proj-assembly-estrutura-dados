@@ -369,30 +369,33 @@ public class Buffer {
      * Carrega o conteúdo de um arquivo pelo caminho
      * fornecido para o buffer.
      *
-     * @param filePath O caminho do arquivo que irá ser carregado.
-     * @param fileName o caminho do arquivo carregado atualmente
+     * @param loadedFileName        O caminho do arquivo que irá ser carregado.
+     * @param currentBufferFileName o caminho do arquivo carregado atualmente
      * @return Uma mensagem de erro se ocorrer erro na operação do
      *         arquivo, ou null se for bem-sucedida.
      */
-    public LoadResult loadBuffer(String filePath, String fileName) {
+    public LoadResult loadBuffer(String loadedFileName, String currentBufferFileName) {
 
         // Flag pra indicar se o arquivo contém algum erro
         boolean fileContainsErrors = false;
 
         // Limpa o buffer de comandos antes de carregar novos dados
         commandBuffer.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(loadedFileName))) {
             String currentLine;
             // Lê o arquivo linha por linha e adiciona cada linha ao buffer de comandos
             while ((currentLine = br.readLine()) != null) {
 
+                String[] SplitCurrentLine = currentLine.split(" ", 3);
+
                 // Verifica se linha está vazia
                 if (currentLine.trim().isEmpty()) {
                     fileContainsErrors = true;
+                } else if (SplitCurrentLine.length < 3) {
+                    fileContainsErrors = true;
                 }
                 // Valida sintaxe da linha
-                String[] SplitCurrentLine = currentLine.split(" ", 3);
-                if (Instructions.validateSyntax(SplitCurrentLine[1], SplitCurrentLine[2]) != null) {
+                else if (Instructions.validateSyntax(SplitCurrentLine[1], SplitCurrentLine[2]) != null) {
                     fileContainsErrors = true;
                 }
 
@@ -402,32 +405,32 @@ public class Buffer {
         } catch (IOException e) {
             // Retorna uma mensagem de erro se ocorrer uma exceção durante a leitura do
             // arquivo
-            return new LoadResult("arquivo " + filePath + " inexistente.", fileName);
+            return new LoadResult("arquivo " + loadedFileName + " inexistente.", currentBufferFileName);
         }
 
         if (fileContainsErrors) {
             return new LoadResult(
-                    "Arquivo com erros carregado, mas não irá conseguir ser executado até os erros serem corrigidos.",
-                    filePath);
+                    "Arquivo com erros carregado, mas não irá conseguir ser executado por completo até os erros serem corrigidos.",
+                    loadedFileName);
         }
 
-        return new LoadResult(null, filePath);
+        return new LoadResult(null, loadedFileName);
     }
 
     /**
      * Salva o conteúdo do buffer em um arquivo especificado pelo caminho fornecido.
      *
-     * @param filePath O caminho do arquivo a ser carregado
-     * @param fileName o caminho do arquivo carregado atualmente
+     * @param loadedFileName        O caminho do arquivo a ser carregado
+     * @param currentBufferFileName o caminho do arquivo carregado atualmente
      * @return Uma mensagem de erro se ocorrer algum erro durante a operação, ou
      *         null se for bem-sucedida.
      */
-    public String saveBuffer(String filePath, String fileName) {
+    public String saveBuffer(String loadedFileName, String currentBufferFileName) {
         if (commandBuffer.isEmpty()) {
             return "não há nenhum código na memória atualmente.";
         }
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(loadedFileName))) {
             // Escreve o conteúdo do buffer no arquivo
             bw.write(commandBuffer.toString());
             bw.newLine();
@@ -435,14 +438,14 @@ public class Buffer {
         } catch (IOException e) {
             // Retorna uma mensagem de erro se ocorrer uma exceção durante a gravação do
             // arquivo
-            return "erro ao salvar o arquivo " + ((filePath == "") ? " sem nome" : filePath) + ".";
+            return "erro ao salvar o arquivo " + ((loadedFileName == "") ? " sem nome" : loadedFileName) + ".";
         } catch (NullPointerException e) {
             // Retorna uma mensagem de erro se arquivo estiver vazio
-            return "arquivo " + ((filePath == "") ? "sem nome" : filePath) + " vazio.";
+            return "arquivo " + ((loadedFileName == "") ? "sem nome" : loadedFileName) + " vazio.";
         }
 
         // Torna o arquivo atual o arquivo salvo
-        fileName = filePath;
+        currentBufferFileName = loadedFileName;
         return null;
     }
 

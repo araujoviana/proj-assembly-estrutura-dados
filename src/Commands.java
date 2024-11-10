@@ -11,6 +11,8 @@ import java.util.Scanner;
  */
 public class Commands {
 
+    private Node<String> currentNode; // Nó usado pelo comando list para armazenar a posição atual
+
     /**
      * Verifica se a string fornecida é um comando válido.
      * 
@@ -90,9 +92,13 @@ public class Commands {
             return "nenhum código carregado na memória.";
         }
 
+        // Inicializa currentNode na primeira chamada
+        if (currentNode == null) {
+            currentNode = commandBuffer.getHead();
+        }
+
         // Constrói a lista de comandos a ser exibida
         StringBuilder sb = new StringBuilder();
-        Node<String> currentNode = commandBuffer.getHead();
         int count = 0;
 
         // Percorre a lista encadeada e adiciona 20 linhas
@@ -102,7 +108,11 @@ public class Commands {
             count++;
         } while (currentNode != commandBuffer.getHead() && count < 20);
 
-        // Retorna as primeiras 20 linhas ou a quantidade disponível
+        // Reseta currentNode se chegamos ao final da lista
+        if (currentNode == commandBuffer.getHead()) {
+            currentNode = null; // Redefine para o início da lista na próxima chamada
+        }
+        // Retorna 20 linhas ou a quantidade disponível
         return sb.toString();
     }
 
@@ -133,14 +143,16 @@ public class Commands {
     /**
      * Carrega o código de um arquivo para o buffer.
      * 
-     * @param buffer           o buffer onde o código será carregado
-     * @param filePath         o caminho do arquivo de onde o código será carregado
-     * @param fileName         o caminho do arquivo carregado atualmente
-     * @param bufferHasChanged verifica se houve alguma alteração não salva no
-     *                         buffer
+     * @param buffer                o buffer onde o código será carregado
+     * @param loadedFileName        o caminho do arquivo de onde o código será
+     *                              carregado
+     * @param currentBufferFileName o caminho do arquivo carregado atualmente
+     * @param bufferHasChanged      verifica se houve alguma alteração não salva no
+     *                              buffer
      * @return o resultado da tentativa de carregar o arquivo
      */
-    public LoadResult load(Buffer buffer, String filePath, String fileName, boolean bufferHasChanged) {
+    public LoadResult load(Buffer buffer, String loadedFileName, String currentBufferFileName,
+            boolean bufferHasChanged) {
 
         // Se o arquivo conter alterações, verifica se o usuário gostaria de salvar
         if (bufferHasChanged) {
@@ -148,35 +160,39 @@ public class Commands {
             String input = "";
             while (!input.toLowerCase().equals("s") && !input.toLowerCase().equals("n")) {
                 System.out
-                        .print("Arquivo atual " + filePath
+                        .print("Arquivo atual " + currentBufferFileName
                                 + " contém alterações não salvas.\nDeseja salvar? (S/N)\n> ");
                 input = loadScanner.nextLine();
 
                 if (input.toLowerCase().equals("s")) {
-                    String result = save(buffer, fileName, filePath);
+                    String result = save(buffer, currentBufferFileName, loadedFileName);
 
                     if (result != null) {
                         System.out.println(
-                                "Erro: " + result + "\n\nArquivo " + fileName
+                                "Erro: " + result + "\n\nArquivo " + currentBufferFileName
                                         + " não foi salvo e consequentemente o arquivo "
-                                        + filePath + " não foi carregado.");
+                                        + loadedFileName + " não foi carregado.");
                     } else {
-                        System.out.println("Arquivo " + fileName + " salvo com sucesso.");
+                        System.out.println("Arquivo " + currentBufferFileName + " salvo com sucesso.");
                     }
 
                 } else if (input.toLowerCase().equals("n")) {
-                    System.out.println("Arquivo não será salvo.");
+                    System.out.println("Arquivo não será salvo.\n\nCarregando arquivo " + loadedFileName + ".");
                 }
             }
 
         }
 
         // Verifica se o arquivo possui a extensão .ed1
-        if (!filePath.endsWith(".ed1")) {
-            return new LoadResult("extensão de arquivo inválida, use .ed1.", filePath);
+        if (!loadedFileName.endsWith(".ed1")) {
+            return new LoadResult("extensão de arquivo inválida, use .ed1.", loadedFileName);
         }
 
-        LoadResult result = buffer.loadBuffer(filePath, fileName);
+        LoadResult result = buffer.loadBuffer(loadedFileName, currentBufferFileName);
+
+        if (result == null) {
+            currentNode = null; // Reinicia o nó atual já que é um arquivo novo
+        }
 
         return result;
     }
@@ -184,14 +200,14 @@ public class Commands {
     /**
      * Salva o código do buffer para um arquivo.
      * 
-     * @param buffer        o buffer onde o código será salvo
-     * @param savedFilePath o caminho do arquivo de onde o código será salvo
-     * @param fileName      o caminho do arquivo carregado atualmente
+     * @param buffer                o buffer onde o código será salvo
+     * @param savedFilePath         o caminho do arquivo de onde o código será salvo
+     * @param currentBufferFileName o caminho do arquivo carregado atualmente
      * @return o resultado da tentativa de salvar o arquivo
      */
-    public String save(Buffer buffer, String savedFilePath, String fileName) {
+    public String save(Buffer buffer, String savedFilePath, String currentBufferFileName) {
 
-        if (fileName.isEmpty() && savedFilePath.isEmpty()) {
+        if (currentBufferFileName.isEmpty() && savedFilePath.isEmpty()) {
             Scanner saveScanner = new Scanner(System.in);
             String input = "";
             while (input.isEmpty()) {
@@ -207,7 +223,7 @@ public class Commands {
             savedFilePath = input;
         }
 
-        String result = buffer.saveBuffer(savedFilePath, fileName);
+        String result = buffer.saveBuffer(savedFilePath, currentBufferFileName);
 
         return result;
     }
@@ -216,13 +232,39 @@ public class Commands {
      * Finaliza a execução do programa, realizando verificações relacionadas ao
      * arquivo.
      * 
-     * @param buffer   o buffer de código
-     * @param fileName o nome do arquivo associado à operação de saída
+     * @param buffer                o buffer de código
+     * @param currentBufferFileName o nome do arquivo associado à operação de saída
+     * @param bufferHasChanged      verifica se houve alguma alteração não salva no
+     *                              buffer
      * @return null se o programa conseguir sair normalmente, caso contrário,
      *         retorna uma mensagem contendo alguma mensagem
      */
-    public String exit(Buffer buffer, String fileName) {
-        // Verificações
+    public String exit(Buffer buffer, String currentBufferFileName, boolean bufferHasChanged) {
+
+        if (bufferHasChanged) {
+            Scanner exitScanner = new Scanner(System.in);
+            String input = "";
+            while (!input.toLowerCase().equals("s") && !input.toLowerCase().equals("n")) {
+                System.out
+                        .print("Arquivo atual " + currentBufferFileName
+                                + " contém alterações não salvas.\nDeseja salvar? (S/N)\n> ");
+                input = exitScanner.nextLine();
+
+                if (input.toLowerCase().equals("s")) {
+
+                    String result = save(buffer, currentBufferFileName, "");
+
+                    if (result != null) {
+                        return "Erro: " + result + "\n\nArquivo " + currentBufferFileName
+                                + " não foi salvo e consequentemente o programa não sairá.";
+                    } else {
+                        System.out.println("Arquivo " + currentBufferFileName + " salvo com sucesso. \n\nSaindo.");
+                    }
+                } else if (input.toLowerCase().equals("n")) {
+                    System.out.println("Arquivo " + currentBufferFileName + " não será salvo.\n\nSaindo.");
+                }
+            }
+        }
 
         return null;
     }

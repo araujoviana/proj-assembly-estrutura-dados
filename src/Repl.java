@@ -12,13 +12,13 @@ public class Repl {
 
     private Commands commands; // Comandos do REPL
     private Buffer buffer; // Buffer do código atual
-    private String fileName; // Nome do arquivo carregado no buffer
+    private String currentBufferFileName; // Nome do arquivo carregado no buffer
     private boolean bufferHasChanged = false; // Verifica se houve alguma alteração não salva no buffer
 
     public Repl() {
         buffer = new Buffer();
         commands = new Commands();
-        fileName = "";
+        currentBufferFileName = "";
     }
 
     /**
@@ -81,7 +81,7 @@ public class Repl {
         if (command.equals("exit")) {
             // Verificações...
 
-            String message = commands.exit(buffer, fileName);
+            String message = commands.exit(buffer, currentBufferFileName, bufferHasChanged);
 
             if (message != null) {
                 displayMessage(message, 2);
@@ -139,21 +139,29 @@ public class Repl {
                 displayMessage(message, 2);
             }
         } else if (command.equals("list") && splitInput.length == 1) {
-            // VERIFICAÇÕES AQUI
+            // Loop para listar blocos de 20 linhas até que menos de 20 sejam retornadas
+            while (true) {
+                // Chama o comando list no buffer e recebe qualquer mensagem retornada
+                String message = commands.list(buffer);
 
-            // Chama o comando list no buffer e recebe qualquer mensagem retornada
-            String message = commands.list(buffer);
+                // Verifica se a mensagem é um erro
+                if (message != null && message.startsWith("nenhum")) {
+                    // Exibe mensagem de erro e sai do loop
+                    displayMessage(message, 2);
+                    break;
+                } else if (message != null) {
+                    // Exibe o bloco de 20 linhas no console
+                    System.out.print(message);
 
-            // Verifica se a mensagem começa com um erro
-            if (message != null && !message.startsWith("nenhum")) {
-                displayMessage(message, 0);
+                    // Verifica quantas linhas foram retornadas
+                    int lineCount = message.split("\n").length;
 
-            } else if (message != null) {
-                // Comando retornou erro
-                displayMessage(message, 2);
-            }
-
-            // Remove uma ou mais linhas do buffer
+                    // Sai do loop se o bloco tiver menos de 20 linhas
+                    if (lineCount < 20) {
+                        break;
+                    }
+                }
+            } // Remove uma ou mais linhas do buffer
         } else if (command.equals("del") && splitInput.length > 1 && splitInput.length < 4) {
             // VERIFICAÇÕES AQUI
 
@@ -187,22 +195,22 @@ public class Repl {
         } else if (command.equals("load") && splitInput.length > 1) {
             // Verificações aqui...
 
-            String filePath = splitInput[1]; // Caminho do arquivo salvo
+            String loadedFileName = splitInput[1]; // Caminho do arquivo salvo
 
             // Chama o comando load no buffer e recebe qualquer mensagem retornada
-            LoadResult result = commands.load(buffer, filePath, fileName, bufferHasChanged);
+            LoadResult result = commands.load(buffer, loadedFileName, currentBufferFileName, bufferHasChanged);
 
             if (result.error == null) {
                 // Buffer carregado ainda não sofreu alterações
                 bufferHasChanged = false;
                 // Atualiza o nome do arquivo atual
-                fileName = result.fileName;
+                currentBufferFileName = result.fileName;
             } else if (result.error.startsWith("Arquivo")) {
                 displayMessage(result.error, 1);
                 // Buffer ainda intacto
                 bufferHasChanged = false;
                 // Atualiza o nome do arquivo atual
-                fileName = result.fileName;
+                currentBufferFileName = result.fileName;
             } else {
                 // Comando retornou erro
                 displayMessage(result.error, 2);
@@ -216,11 +224,11 @@ public class Repl {
             if (splitInput.length > 1) {
                 savedFilePath = splitInput[1];
             } else {
-                savedFilePath = fileName;
+                savedFilePath = currentBufferFileName;
             }
 
             // Chama o comando save no buffer e recebe qualquer mensagem retornada
-            String message = commands.save(buffer, savedFilePath, fileName);
+            String message = commands.save(buffer, savedFilePath, currentBufferFileName);
 
             if (message != null) {
                 // Comando retornou erro
