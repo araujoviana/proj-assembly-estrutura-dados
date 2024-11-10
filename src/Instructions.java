@@ -72,7 +72,7 @@ public class Instructions {
                 }
                 break;
             default:
-                return "instrução desconhecida.";
+                return "instrução " + instruction + " desconhecida.";
         }
 
         return null; // Se nenhum erro, retorna null
@@ -84,7 +84,7 @@ public class Instructions {
      * @param param O argumento a ser verificado.
      * @return true se o argumento for um registrador válido, false caso contrário.
      */
-    private static boolean isValidRegister(String param) {
+    public static boolean isValidRegister(String param) {
         return param.length() == 1 && param.matches("[a-z]");
     }
 
@@ -94,7 +94,7 @@ public class Instructions {
      * @param param O argumento a ser verificado.
      * @return true se o argumento for um número inteiro, false caso contrário.
      */
-    private static boolean isValidNumber(String param) {
+    public static boolean isValidNumber(String param) {
         try {
             Integer.parseInt(param);
             return true;
@@ -110,7 +110,7 @@ public class Instructions {
      * @return true se o argumento for um número ou um registrador válido, false
      *         caso contrário.
      */
-    private static boolean isValidRegisterOrNumber(String param) {
+    public static boolean isValidRegisterOrNumber(String param) {
         return isValidRegister(param) || isValidNumber(param);
     }
 
@@ -245,7 +245,7 @@ public class Instructions {
             int result = val1 / val2;
             registers.setRegisterValue(paramParts[0].charAt(0), result); // Atualiza o valor no primeiro registrador
         } catch (ArithmeticException e) {
-            return "divisão por zero.";
+            return "operação " + paramParts[0] + " / " + paramParts[1] + "  é uma divisão por zero.";
         }
 
         return null;

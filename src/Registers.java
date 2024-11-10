@@ -14,7 +14,11 @@ public class Registers {
     public Registers() {
         registerList = new LinkedList<>();
 
-        // Adiciona registradores de 'a' a 'z' com valor inicial 0
+        /*
+         * Adiciona registradores de 'a' a 'z' com valor inicial 0, mas eles não podem
+         * ser acessados quando são indefinidos no código (isso é verificado no método
+         * evaluateBuffer da classe Buffer)
+         */
         for (char reg = 'a'; reg <= 'z'; reg++) {
             registerList.append(new RegisterNode(reg, 0));
         }
@@ -37,9 +41,6 @@ public class Registers {
             current = current.getNext();
         } while (current != registerList.getHead());
 
-        // REVIEW vale a pena? -> Substitua por um valor realmente nulo ou menos
-        // perigoso
-        // Se não encontrar o valor...
         return 0;
 
     }

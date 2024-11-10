@@ -184,7 +184,8 @@ public class Commands {
                     }
 
                 } else if (input.toLowerCase().equals("n")) {
-                    System.out.println("Arquivo não será salvo.\n\nCarregando arquivo " + loadedFileName + ".");
+                    System.out.println(
+                            "Alterações no arquivo não serão salvas.\n\nCarregando arquivo " + loadedFileName + ".");
                 }
             }
 
@@ -226,6 +227,7 @@ public class Commands {
                     input = "";
                     continue;
                 }
+                System.out.println("Tentando salvar arquivo " + input + " ...");
             }
             savedFilePath = input;
         }
@@ -268,7 +270,10 @@ public class Commands {
                         System.out.println("Arquivo " + currentBufferFileName + " salvo com sucesso. \n\nSaindo.");
                     }
                 } else if (input.toLowerCase().equals("n")) {
-                    System.out.println("Arquivo " + currentBufferFileName + " não será salvo.\n\nSaindo.");
+                    System.out
+                            .println("Alterações no arquivo "
+                                    + (currentBufferFileName.isEmpty() ? "sem nome" : currentBufferFileName)
+                                    + " não serão salvas.\n\nSaindo.");
                 }
             }
         }

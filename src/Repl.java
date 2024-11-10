@@ -8,8 +8,6 @@
  * os executa se comunicando com o buffer do código carregado.
  */
 
-import java.io.LineNumberReader;
-
 public class Repl {
 
     private Commands commands; // Comandos do REPL
@@ -146,6 +144,10 @@ public class Repl {
             }
         } else if (command.equals("list") && splitInput.length == 1) {
             // Loop para listar blocos de 20 linhas até que menos de 20 sejam retornadas
+
+            // Verifica se o erro de list já foi exibido
+            boolean bufferHasError = false;
+
             while (true) {
                 // Chama o comando list no buffer e recebe qualquer mensagem retornada
                 String message = commands.list(buffer);
@@ -163,23 +165,47 @@ public class Repl {
                     String[] lines = message.split("\n");
                     int lineCount = lines.length;
 
-                    // Obtém o número da última linha da mensagem
-                    String lastLine = lines[lines.length - 1];
-                    String[] lastLineParts = lastLine.split(" ", 2);
-                    int lastLineNumber = Integer.parseInt(lastLineParts[0]);
+                    try {
 
-                    // Obtém o número da última linha do buffer (tail)
-                    String[] tailParts = buffer.getCommandBuffer().getTail().getValue().split(" ", 2);
-                    int tailLineNumber = Integer.parseInt(tailParts[0]);
+                        // Obtém o número da última linha da mensagem
+                        String lastLine = lines[lines.length - 1];
+                        String[] lastLineParts = lastLine.split(" ", 2);
+                        int lastLineNumber = Integer.parseInt(lastLineParts[0]);
 
-                    // Sai do loop se o número da última linha for igual ao número da linha da tail
-                    // do buffer
-                    if (lineCount < 20 || lastLineNumber == tailLineNumber) {
-                        break;
+                        // Obtém o número da última linha do buffer (tail)
+                        String[] tailParts = buffer.getCommandBuffer().getTail().getValue().split(" ", 2);
+                        int tailLineNumber = Integer.parseInt(tailParts[0]);
+
+                        // Verifica se existem linhas inválidas no buffer usando a exceção
+                        for (String line : lines) {
+                            String[] lineParts = line.split(" ", 2);
+                            Integer.parseInt(lineParts[0]);
+                        }
+
+                        // Sai do loop se o número da última linha for igual ao número da linha da tail
+                        // do buffer
+                        if (lineCount < 20 || lastLineNumber == tailLineNumber) {
+                            break;
+                        }
+                    } catch (NumberFormatException e) {
+                        bufferHasError = true;
+                        if (lineCount < 20) {
+                            break;
+                        }
                     }
                 }
-            } // Remove uma ou mais linhas do buffer
-        } else if (command.equals("del") && splitInput.length > 1 && splitInput.length < 4) {
+
+            }
+
+            if (bufferHasError) {
+                displayMessage(
+                        "código na memória contém pelo menos um número de linha inválido.",
+                        1);
+            }
+        }
+        // Remove uma ou mais linhas do buffer
+
+        else if (command.equals("del") && splitInput.length > 1 && splitInput.length < 4) {
             // VERIFICAÇÕES AQUI
 
             // Isola o número da linha ou intervalo de linhas
@@ -220,17 +246,23 @@ public class Repl {
             // Chama o comando load no buffer e recebe qualquer mensagem retornada
             LoadResult result = commands.load(buffer, loadedFileName, currentBufferFileName, bufferHasChanged);
 
-            if (result.error == null) {
-                // Buffer carregado ainda não sofreu alterações
-                bufferHasChanged = false;
-                // Atualiza o nome do arquivo atual
-                currentBufferFileName = result.fileName;
-            } else if (result.error.startsWith("Arquivo")) {
+            // Arquivo foi carregado com erros
+            if (result.error.startsWith("Arquivo com erros")) {
                 displayMessage(result.error, 1);
                 // Buffer ainda intacto
                 bufferHasChanged = false;
                 // Atualiza o nome do arquivo atual
                 currentBufferFileName = result.fileName;
+            }
+            // Arquivo foi carregado sem erros
+            else if (result.error.startsWith("Arquivo carregado")) {
+                // Mensagem não é erro nesse caso
+                displayMessage(result.error, 0);
+                // Buffer ainda intacto
+                bufferHasChanged = false;
+                // Atualiza o nome do arquivo atual
+                currentBufferFileName = result.fileName;
+
             } else {
                 // Comando retornou erro
                 displayMessage(result.error, 2);
@@ -243,6 +275,10 @@ public class Repl {
             // Verifica se o usuário especificou o arquivo para salvar
             if (splitInput.length > 1) {
                 savedFilePath = splitInput[1];
+                if (!savedFilePath.endsWith(".ed1")) {
+                    displayMessage("extensão do arquivo não termina com extensão .ed1.", 2);
+                    return false;
+                }
             } else {
                 savedFilePath = currentBufferFileName;
             }
@@ -253,7 +289,10 @@ public class Repl {
             if (message != null) {
                 // Comando retornou erro
                 displayMessage(message, 2);
+            } else {
                 bufferHasChanged = false; // Arquivo foi salvo então há alterações não salvas
+                displayMessage("Arquivo salvo com sucesso.", 0);
+                currentBufferFileName = savedFilePath;
             }
         } else {
             displayMessage("argumentos para o comando " + command.toUpperCase() + " insuficientes", 2);

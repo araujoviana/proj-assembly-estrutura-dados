@@ -115,9 +115,7 @@ public class Buffer {
             current = current.getNext();
         } while (current != commandBuffer.getHead());
 
-        // REVIEW reduntante visto linha 111?
-        // Se a linha não foi encontrada após percorrer a lista
-        return "linha " + lineNumber + " inexistente.";
+        return "número de linha " + lineNumber + " inexistente.";
     }
 
     /**
@@ -252,6 +250,9 @@ public class Buffer {
 
         Node<String> current = commandBuffer.getHead();
 
+        // Armazena quais registradores já foram definidos
+        LinkedList<String> definedRegisters = new LinkedList<>();
+
         boolean jnzJumped = false; // Verifica se jnz fez algum pulo
 
         do {
@@ -263,6 +264,13 @@ public class Buffer {
             // Verifica se a linha começa com um inteiro
             try {
                 Integer.parseInt(lineNumber);
+
+                // Verifica se existem linhas duplicadas ou na ordem errada
+                if (Integer.parseInt(lineNumber) <= Integer.parseInt(current.getPrev().getValue().split(" ", 3)[0])
+                        && current != commandBuffer.getHead()) {
+                    return "número de linha " + lineNumber + " igual ou menor que pelo menos uma linha anterior";
+
+                }
             } catch (NumberFormatException e) {
                 return "número de linha inválido: " + lineNumber + ".";
             }
@@ -272,12 +280,27 @@ public class Buffer {
 
             // Verifica se a instrução é válida
             if (!Instructions.isInstruction(instruction)) {
-                return "instrução inválida na linha " + lineNumber + ": " + instruction;
+                return "instrução inválida:" + instruction;
             }
             // Valida a sintaxe dos argumentos da instrução
             String validationError = Instructions.validateSyntax(instruction, arguments);
             if (validationError != null) {
                 return validationError;
+            }
+
+            // Verifica se a operação envolve um registrador indefinido
+            String[] verifyParts = arguments.split(" ");
+            if (!instruction.equals("mov")) {
+                if (Instructions.isValidRegister(verifyParts[0])) {
+                    if (definedRegisters.getNode(verifyParts[0]) == null) {
+                        return "registrador " + verifyParts[0] + " indefinido.";
+                    }
+                }
+            }
+            if (verifyParts.length > 1 && Instructions.isValidRegister(verifyParts[1])) {
+                if (definedRegisters.getNode(verifyParts[1]) == null) {
+                    return "registrador " + verifyParts[1] + " indefinido.";
+                }
             }
 
             // Mensagem retornada pelas instruções
@@ -361,6 +384,8 @@ public class Buffer {
                         return message;
                     }
 
+                    definedRegisters.append(arguments.split(" ")[0]);
+
                     break;
 
                 // Imprime o valor de um registrador
@@ -415,6 +440,7 @@ public class Buffer {
 
         // StringBuilder para acumular mensagens de erro
         StringBuilder errorMessages = new StringBuilder();
+        LinkedList<String> bufferLineNumbers = new LinkedList<>();
 
         // Limpa o buffer de comandos antes de carregar novos dados
         commandBuffer.clear();
@@ -433,12 +459,28 @@ public class Buffer {
                     commandBuffer.append(currentLine);
 
                 }
+                // Verifica se a linha é duplicada
+                else if (bufferLineNumbers.getNode(currentLine.split(" ")[0]) != null) {
+                    errorMessages.append("linha ").append(lineNumber)
+                            .append(": linha " + currentLine
+                                    + " possui número de linha duplicada com outra linha anterior.\n");
+                    commandBuffer.append(currentLine);
+                }
+
                 // Verifica se a linha tem menos de 3 partes (quando deve ter pelo menos 3)
                 else if (splitCurrentLine.length < 3) {
                     errorMessages.append("linha ").append(lineNumber)
-                            .append(": linha com número insuficiente de argumentos ou comando é inválido.\n");
+                            .append(": comando com número insuficiente de argumentos ou comando é inválido.\n");
                     commandBuffer.append(currentLine);
 
+                }
+
+                // Verifica se linha é menor que linha anterior
+                else if (lineIsSmaller(currentLine.split(" ")[0], bufferLineNumbers)) {
+                    errorMessages.append("linha ").append(lineNumber)
+                            .append(": linha " + currentLine
+                                    + " possui número de linha menor que outra linha já inserida.\n");
+                    commandBuffer.append(currentLine);
                 }
                 // Valida a sintaxe da linha
                 else {
@@ -449,7 +491,9 @@ public class Buffer {
                         commandBuffer.append(currentLine);
 
                     } else {
+                        // Linha é válida
                         commandBuffer.append(currentLine);
+                        bufferLineNumbers.append(currentLine.split(" ")[0]);
                     }
                 }
 
@@ -466,13 +510,42 @@ public class Buffer {
         // Se houver erros, retorna a mensagem com todos os erros encontrados
         if (errorMessages.length() > 0) {
             return new LoadResult(
-                    "Arquivo com erros carregado, então não será possível executá-lo completamente e alguns comandos não funcionarão corretamente até que os erros sejam corrigidos:\n"
+                    "Arquivo com erros de sintaxe carregado, então não será possível executá-lo completamente e alguns comandos não funcionarão corretamente até que os erros sejam corrigidos:\n"
                             +
                             errorMessages.toString(),
                     loadedFileName);
         }
 
-        return new LoadResult(null, loadedFileName);
+        return new LoadResult("Arquivo carregado com sucesso.", loadedFileName);
+    }
+
+    private boolean lineIsSmaller(String currentNumber, LinkedList<String> bufferLineNumbers) {
+
+        // Itera sobre cada nó em bufferLineNumbers
+        Node<String> current = bufferLineNumbers.getHead();
+        do {
+
+            if (bufferLineNumbers.isEmpty()) {
+                return false;
+            }
+
+            try {
+                int currentLineNumber = Integer.parseInt(currentNumber);
+                int storedLineNumber = Integer.parseInt(current.getValue());
+
+                // Verifica se o número da linha atual é menor que o número de linha armazenado
+                if (currentLineNumber < storedLineNumber) {
+                    return true; // Se encontrado, retorna true, pois a linha atual é menor
+                }
+            } catch (NullPointerException e) {
+                continue;
+            }
+
+            current = current.getNext(); // Avança para o próximo nó na lista
+        } while (current != bufferLineNumbers.getHead());
+
+        // Se nenhum número de linha menor for encontrado, retorna false
+        return false;
     }
 
     /**
