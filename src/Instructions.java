@@ -239,9 +239,60 @@ public class Instructions {
             val2 = registers.getRegisterValue(paramParts[1].charAt(0));
         }
 
-        // Realiza a divisão e armazena o resultado no primeiro registrador
-        int result = val1 / val2;
-        registers.setRegisterValue(paramParts[0].charAt(0), result); // Atualiza o valor no primeiro registrador
+        try {
+
+            // Realiza a divisão e armazena o resultado no primeiro registrador
+            int result = val1 / val2;
+            registers.setRegisterValue(paramParts[0].charAt(0), result); // Atualiza o valor no primeiro registrador
+        } catch (ArithmeticException e) {
+            return "divisão por zero.";
+        }
+
+        return null;
+    }
+
+    /**
+     * Executa a instrução de incremento no registrador.
+     * O resultado é armazenado no próprio registrador.
+     *
+     * @param arguments A string contendo o argumento da instrução
+     * @param registers A instância que gerencia os valores dos registradores.
+     * @return null se a operação for bem-sucedida, ou uma string de erro se não
+     *         for.
+     */
+    public static String inc(String arguments, Registers registers) {
+        String[] paramParts = arguments.split(" ");
+
+        // Obtém o valor do primeiro argumento (sempre registrador)
+        int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
+
+        // Incrementa no primeiro registrador
+        val1++;
+
+        registers.setRegisterValue(paramParts[0].charAt(0), val1); // Atualiza o valor no primeiro registrador
+
+        return null;
+    }
+
+    /**
+     * Executa a instrução de decremento no registrador.
+     * O resultado é armazenado no próprio registrador.
+     *
+     * @param arguments A string contendo o argumento da instrução
+     * @param registers A instância que gerencia os valores dos registradores.
+     * @return null se a operação for bem-sucedida, ou uma string de erro se não
+     *         for.
+     */
+    public static String dec(String arguments, Registers registers) {
+        String[] paramParts = arguments.split(" ");
+
+        // Obtém o valor do primeiro argumento (sempre registrador)
+        int val1 = registers.getRegisterValue(paramParts[0].charAt(0));
+
+        // Decrementa no primeiro registrador
+        val1--;
+
+        registers.setRegisterValue(paramParts[0].charAt(0), val1); // Atualiza o valor no primeiro registrador
 
         return null;
     }

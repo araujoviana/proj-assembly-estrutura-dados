@@ -267,6 +267,28 @@ public class Buffer {
                     }
                     break;
 
+                // Incrementa um registrador
+                case "inc":
+
+                    message = Instructions.inc(arguments, registers);
+
+                    // Retorna possíveis erros
+                    if (message != null) {
+                        return message;
+                    }
+                    break;
+
+                // Decrementa um registrador
+                case "dec":
+
+                    message = Instructions.dec(arguments, registers);
+
+                    // Retorna possíveis erros
+                    if (message != null) {
+                        return message;
+                    }
+                    break;
+
                 // Define um valor para um registrador
                 case "mov":
 
