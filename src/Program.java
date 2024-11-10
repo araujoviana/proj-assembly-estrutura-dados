@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class Program {
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
-		String input = "";
+		String input; // Entrada do usuário
 		Repl repl = new Repl();
 		boolean hasExited = false; // Verifica se o usuário executou o comando EXIT
 

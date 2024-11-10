@@ -13,6 +13,7 @@ public class Repl {
     private Commands commands; // Comandos do REPL
     private Buffer buffer; // Buffer do código atual
     private String fileName; // Nome do arquivo carregado no buffer
+    private boolean bufferHasChanged = false; // Verifica se houve alguma alteração não salva no buffer
 
     public Repl() {
         buffer = new Buffer();
@@ -109,9 +110,11 @@ public class Repl {
                 if (message == null) {
                     // Linha foi inserida
                     displayMessage("Linha inserida:\n" + lineNumber + " " + instruction + " " + arguments, 0);
+                    bufferHasChanged = true;
                 } else if (message.startsWith("Linha:")) {
                     // Linha foi atualizada
                     displayMessage(message, 0);
+                    bufferHasChanged = true;
                 } else {
                     // Comando falhou
                     displayMessage(message, 2);
@@ -167,9 +170,10 @@ public class Repl {
                 // Chama o comando delete no buffer e recebe qualquer mensagem retornada
                 String message = commands.delete(buffer, lineNumbers);
 
-                // Expressão regular para começar com: "Linha(s opcional) removida(s opcional)?"
                 if (message.startsWith("Linha")) {
+                    // Comando operou corretamente
                     displayMessage(message, 0);
+                    bufferHasChanged = true;
                 } else if (message != null) {
                     // Comando retornou erro
                     displayMessage(message, 2);
@@ -186,11 +190,22 @@ public class Repl {
             String filePath = splitInput[1]; // Caminho do arquivo salvo
 
             // Chama o comando load no buffer e recebe qualquer mensagem retornada
-            String message = commands.load(buffer, filePath);
+            LoadResult result = commands.load(buffer, filePath, fileName, bufferHasChanged);
 
-            if (message != null) {
+            if (result.error == null) {
+                // Buffer carregado ainda não sofreu alterações
+                bufferHasChanged = false;
+                // Atualiza o nome do arquivo atual
+                fileName = result.fileName;
+            } else if (result.error.startsWith("Arquivo")) {
+                displayMessage(result.error, 1);
+                // Buffer ainda intacto
+                bufferHasChanged = false;
+                // Atualiza o nome do arquivo atual
+                fileName = result.fileName;
+            } else {
                 // Comando retornou erro
-                displayMessage(message, 2);
+                displayMessage(result.error, 2);
             }
 
             // Insere o conteúdo do buffer atual em um arquivo .ed1
@@ -198,18 +213,19 @@ public class Repl {
             String savedFilePath; // Caminho do arquivo salvo
 
             // Verifica se o usuário especificou o arquivo para salvar
-            if (splitInput[1] != null) {
+            if (splitInput.length > 1) {
                 savedFilePath = splitInput[1];
             } else {
                 savedFilePath = fileName;
             }
 
             // Chama o comando save no buffer e recebe qualquer mensagem retornada
-            String message = commands.save(buffer, savedFilePath);
+            String message = commands.save(buffer, savedFilePath, fileName);
 
             if (message != null) {
                 // Comando retornou erro
                 displayMessage(message, 2);
+                bufferHasChanged = false; // Arquivo foi salvo então há alterações não salvas
             }
         } else {
             displayMessage("argumentos para o comando " + command.toUpperCase() + " insuficientes", 2);

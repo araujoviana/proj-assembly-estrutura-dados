@@ -3,6 +3,8 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
+import java.util.Scanner;
+
 /**
  * Gerencia comandos para manipulação do buffer de código e
  * Realiza validações e operações no buffer de acordo com o comando fornecido.
@@ -131,15 +133,50 @@ public class Commands {
     /**
      * Carrega o código de um arquivo para o buffer.
      * 
-     * @param buffer   o buffer onde o código será carregado
-     * @param filePath o caminho do arquivo de onde o código será carregado
+     * @param buffer           o buffer onde o código será carregado
+     * @param filePath         o caminho do arquivo de onde o código será carregado
+     * @param fileName         o caminho do arquivo carregado atualmente
+     * @param bufferHasChanged verifica se houve alguma alteração não salva no
+     *                         buffer
      * @return o resultado da tentativa de carregar o arquivo
      */
-    public String load(Buffer buffer, String filePath) {
+    public LoadResult load(Buffer buffer, String filePath, String fileName, boolean bufferHasChanged) {
 
-        // TODO polir essa função
+        // Se o arquivo conter alterações, verifica se o usuário gostaria de salvar
+        if (bufferHasChanged) {
+            Scanner loadScanner = new Scanner(System.in);
+            String input = "";
+            while (!input.toLowerCase().equals("s") && !input.toLowerCase().equals("n")) {
+                System.out
+                        .print("Arquivo atual " + filePath
+                                + " contém alterações não salvas.\nDeseja salvar? (S/N)\n> ");
+                input = loadScanner.nextLine();
 
-        String result = buffer.loadBuffer(filePath);
+                if (input.toLowerCase().equals("s")) {
+                    String result = save(buffer, fileName, filePath);
+
+                    if (result != null) {
+                        System.out.println(
+                                "Erro: " + result + "\n\nArquivo " + fileName
+                                        + " não foi salvo e consequentemente o arquivo "
+                                        + filePath + " não foi carregado.");
+                    } else {
+                        System.out.println("Arquivo " + fileName + " salvo com sucesso.");
+                    }
+
+                } else if (input.toLowerCase().equals("n")) {
+                    System.out.println("Arquivo não será salvo.");
+                }
+            }
+
+        }
+
+        // Verifica se o arquivo possui a extensão .ed1
+        if (!filePath.endsWith(".ed1")) {
+            return new LoadResult("extensão de arquivo inválida, use .ed1.", filePath);
+        }
+
+        LoadResult result = buffer.loadBuffer(filePath, fileName);
 
         return result;
     }
@@ -149,13 +186,28 @@ public class Commands {
      * 
      * @param buffer        o buffer onde o código será salvo
      * @param savedFilePath o caminho do arquivo de onde o código será salvo
+     * @param fileName      o caminho do arquivo carregado atualmente
      * @return o resultado da tentativa de salvar o arquivo
      */
-    public String save(Buffer buffer, String savedFilePath) {
+    public String save(Buffer buffer, String savedFilePath, String fileName) {
 
-        // TODO polir essa função
+        if (fileName.isEmpty() && savedFilePath.isEmpty()) {
+            Scanner saveScanner = new Scanner(System.in);
+            String input = "";
+            while (input.isEmpty()) {
+                System.out.print("Arquivo atual não possui nome, insira um nome:\n> ");
+                input = saveScanner.nextLine();
 
-        String result = buffer.saveBuffer(savedFilePath);
+                if (!input.endsWith(".ed1")) {
+                    System.out.println("Erro: extensão de arquivo inválida, use .ed1");
+                    input = "";
+                    continue;
+                }
+            }
+            savedFilePath = input;
+        }
+
+        String result = buffer.saveBuffer(savedFilePath, fileName);
 
         return result;
     }

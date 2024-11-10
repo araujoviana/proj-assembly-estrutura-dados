@@ -3,12 +3,12 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
-public class JnzResult {
-    public Node<String> node;
+public class LoadResult {
+    public String fileName;
     public String error;
 
-    public JnzResult(Node<String> node, String error) {
-        this.node = node;
+    public LoadResult(String error, String fileName) {
+        this.fileName = fileName;
         this.error = error;
     }
 
