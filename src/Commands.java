@@ -103,6 +103,13 @@ public class Commands {
 
         // Percorre a lista encadeada e adiciona 20 linhas
         do {
+            // Se a linha estiver vazia só insere ela sem extrair o valor
+            if (currentNode.getValue().trim().isEmpty()) {
+                sb.append(" \n");
+                currentNode = currentNode.getNext();
+                count++;
+                continue;
+            }
             sb.append(currentNode.getValue()).append("\n");
             currentNode = currentNode.getNext();
             count++;

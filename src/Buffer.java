@@ -128,8 +128,12 @@ public class Buffer {
      * @param lineEnd   o número da linha final do intervalo
      * @return uma mensagem indicando se a operação foi bem-sucedida ou não
      */
-    // FIXME Remove apenas o primeiro nó se intervalo começar no inicio da lista
     public String removeInterval(int lineStart, int lineEnd) {
+
+        // Verifica se o buffer está vazio
+        if (commandBuffer.isEmpty()) {
+            return "não há nenhum código carregado na memória";
+        }
         // Verifica se os parâmetros do intervalo são válidos
         if (lineStart > lineEnd) {
             return "inicio do intervalo maior que o final.";
@@ -138,19 +142,25 @@ public class Buffer {
         }
 
         // Verifica se o intervalo está dentro do código
-        String[] headParts = commandBuffer.getHead().getValue().split(" ", 2);
-        int headLineNumber = Integer.parseInt(headParts[0]);
-        String[] tailParts = commandBuffer.getTail().getValue().split(" ", 2);
-        int tailLineNumber = Integer.parseInt(tailParts[0]);
+        try {
+            String[] headParts = commandBuffer.getHead().getValue().split(" ", 2);
+            int headLineNumber = Integer.parseInt(headParts[0]);
 
-        if (lineStart < headLineNumber) {
-            return "intervalo inicia antes da linha do começo.";
-        } else if (lineEnd < headLineNumber) {
-            return "intervalo termina antes da linha do começo.";
-        } else if (lineStart > tailLineNumber) {
-            return "intervalo inicia depois da linha do final.";
-        } else if (lineEnd > tailLineNumber) {
-            return "intervalo termina depois da linha do final.";
+            String[] tailParts = commandBuffer.getTail().getValue().split(" ", 2);
+            int tailLineNumber = Integer.parseInt(tailParts[0]);
+
+            if (lineStart < headLineNumber) {
+                return "intervalo inicia antes da linha do começo.";
+            } else if (lineEnd < headLineNumber) {
+                return "intervalo termina antes da linha do começo.";
+            } else if (lineStart > tailLineNumber) {
+                return "intervalo inicia depois da linha do final.";
+            } else if (lineEnd > tailLineNumber) {
+                return "intervalo termina depois da linha do final.";
+            }
+
+        } catch (NumberFormatException e) {
+            return "Arquivo começa ou termina com número de linha vazio ou inválido, verifique se existem linhas vazias no arquivo.";
         }
 
         Node<String> current = commandBuffer.getHead();
@@ -164,14 +174,28 @@ public class Buffer {
 
         Node<String> nextNode = current.getNext();
 
+        // Verifica se o head está no intervalo de remoção
+        boolean headInInterval = false;
+        String[] currentParts = current.getValue().split(" ", 2);
+        int existingLineNumber = Integer.parseInt(currentParts[0]);
+        if (existingLineNumber >= lineStart && existingLineNumber <= lineEnd && current == commandBuffer.getHead()) {
+            // Se sim, pula a remoção dele, até o final, para não atrapalhar o loop de
+            // remoção
+            headInInterval = true;
+            current = nextNode;
+            nextNode = current.getNext();
+
+            // Adiciona head ao stringbuilder
+            removedLines.append(commandBuffer.getHead().getValue()).append("\n");
+        }
+
         do {
             // Divide o valor da linha atual para obter o número da linha
-            String[] currentParts = current.getValue().split(" ", 2);
-            int existingLineNumber = Integer.parseInt(currentParts[0]);
+            currentParts = current.getValue().split(" ", 2);
+            existingLineNumber = Integer.parseInt(currentParts[0]);
 
             // Verifica se a linha está no intervalo
             if (existingLineNumber >= lineStart && existingLineNumber <= lineEnd) {
-
                 String lineToRemove = current.getValue();
 
                 // Tenta remover o nó
@@ -179,10 +203,17 @@ public class Buffer {
                 if (removed) {
                     removedAny = true;
                     removedLines.append(lineToRemove).append("\n");
-                }
 
-                // reconfigura o próximo nó
-                current = nextNode;
+                    // Após a remoção, ajusta o próximo nó corretamente
+                    if (current == commandBuffer.getHead()) {
+                        // Se removemos o nó inicial, atualiza o head
+                        current = commandBuffer.getHead();
+                    } else {
+                        current = nextNode;
+                    }
+                } else {
+                    current = nextNode;
+                }
             } else {
                 current = nextNode;
             }
@@ -193,6 +224,12 @@ public class Buffer {
             }
 
         } while (current != commandBuffer.getHead());
+
+        // Remove a head por último se ela estiver no intervalo
+        if (headInInterval) {
+            commandBuffer.removeHead();
+            removedAny = true;
+        }
 
         // Retorna as linhas removidas ou uma mensagem caso nenhuma linha tenha sido
         // encontrada
@@ -376,41 +413,62 @@ public class Buffer {
      */
     public LoadResult loadBuffer(String loadedFileName, String currentBufferFileName) {
 
-        // Flag pra indicar se o arquivo contém algum erro
-        boolean fileContainsErrors = false;
+        // StringBuilder para acumular mensagens de erro
+        StringBuilder errorMessages = new StringBuilder();
 
         // Limpa o buffer de comandos antes de carregar novos dados
         commandBuffer.clear();
         try (BufferedReader br = new BufferedReader(new FileReader(loadedFileName))) {
             String currentLine;
+            int lineNumber = 1; // Número da linha para identificar erros
+
             // Lê o arquivo linha por linha e adiciona cada linha ao buffer de comandos
             while ((currentLine = br.readLine()) != null) {
 
-                String[] SplitCurrentLine = currentLine.split(" ", 3);
+                String[] splitCurrentLine = currentLine.split(" ", 3);
 
-                // Verifica se linha está vazia
+                // Verifica se a linha está vazia
                 if (currentLine.trim().isEmpty()) {
-                    fileContainsErrors = true;
-                } else if (SplitCurrentLine.length < 3) {
-                    fileContainsErrors = true;
+                    errorMessages.append("linha ").append(lineNumber).append(": linha vazia.\n");
+                    commandBuffer.append(currentLine);
+
                 }
-                // Valida sintaxe da linha
-                else if (Instructions.validateSyntax(SplitCurrentLine[1], SplitCurrentLine[2]) != null) {
-                    fileContainsErrors = true;
+                // Verifica se a linha tem menos de 3 partes (quando deve ter pelo menos 3)
+                else if (splitCurrentLine.length < 3) {
+                    errorMessages.append("linha ").append(lineNumber)
+                            .append(": linha com número insuficiente de argumentos ou comando é inválido.\n");
+                    commandBuffer.append(currentLine);
+
+                }
+                // Valida a sintaxe da linha
+                else {
+                    String syntaxError = Instructions.validateSyntax(splitCurrentLine[1], splitCurrentLine[2]);
+                    if (syntaxError != null) {
+                        errorMessages.append("linha ").append(lineNumber).append(": ").append(syntaxError)
+                                .append("\n");
+                        commandBuffer.append(currentLine);
+
+                    } else {
+                        commandBuffer.append(currentLine);
+                    }
                 }
 
-                commandBuffer.append(currentLine);
+                lineNumber++;
             }
 
         } catch (IOException e) {
             // Retorna uma mensagem de erro se ocorrer uma exceção durante a leitura do
             // arquivo
-            return new LoadResult("arquivo " + loadedFileName + " inexistente.", currentBufferFileName);
+            return new LoadResult("arquivo " + loadedFileName + " inexistente ou não acessível.",
+                    currentBufferFileName);
         }
 
-        if (fileContainsErrors) {
+        // Se houver erros, retorna a mensagem com todos os erros encontrados
+        if (errorMessages.length() > 0) {
             return new LoadResult(
-                    "Arquivo com erros carregado, mas não irá conseguir ser executado por completo até os erros serem corrigidos.",
+                    "Arquivo com erros carregado, então não será possível executá-lo completamente e alguns comandos não funcionarão corretamente até que os erros sejam corrigidos:\n"
+                            +
+                            errorMessages.toString(),
                     loadedFileName);
         }
 

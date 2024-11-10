@@ -8,6 +8,8 @@
  * os executa se comunicando com o buffer do código carregado.
  */
 
+import java.io.LineNumberReader;
+
 public class Repl {
 
     private Commands commands; // Comandos do REPL
@@ -96,8 +98,9 @@ public class Repl {
             String[] insertArguments = splitInput[1].split(" ", 3);
 
             // Verifica se o número de linha é um Integer ou se a instrução está completa
+            int lineNumber = 0;
             try {
-                int lineNumber = Integer.parseInt(insertArguments[0]); // Número da linha da instrução
+                lineNumber = Integer.parseInt(insertArguments[0]); // Número da linha da instrução
 
                 String instruction = insertArguments[1]; // Instrução
 
@@ -121,7 +124,10 @@ public class Repl {
                 }
 
             } catch (NumberFormatException e) {
-                displayMessage("número de linha para o comando " + command.toUpperCase() + " inválido.", 2);
+                displayMessage(
+                        "código na memória ou entrada do usuário para o comando " + command.toUpperCase()
+                                + " contém número de linha inválido.",
+                        2);
             } catch (ArrayIndexOutOfBoundsException e) {
                 displayMessage("instrução incompleta para a linha inserida no comando "
                         + command.toUpperCase() + ".", 2);
@@ -154,10 +160,21 @@ public class Repl {
                     System.out.print(message);
 
                     // Verifica quantas linhas foram retornadas
-                    int lineCount = message.split("\n").length;
+                    String[] lines = message.split("\n");
+                    int lineCount = lines.length;
 
-                    // Sai do loop se o bloco tiver menos de 20 linhas
-                    if (lineCount < 20) {
+                    // Obtém o número da última linha da mensagem
+                    String lastLine = lines[lines.length - 1];
+                    String[] lastLineParts = lastLine.split(" ", 2);
+                    int lastLineNumber = Integer.parseInt(lastLineParts[0]);
+
+                    // Obtém o número da última linha do buffer (tail)
+                    String[] tailParts = buffer.getCommandBuffer().getTail().getValue().split(" ", 2);
+                    int tailLineNumber = Integer.parseInt(tailParts[0]);
+
+                    // Sai do loop se o número da última linha for igual ao número da linha da tail
+                    // do buffer
+                    if (lineCount < 20 || lastLineNumber == tailLineNumber) {
                         break;
                     }
                 }
@@ -188,7 +205,10 @@ public class Repl {
                 }
 
             } catch (NumberFormatException e) {
-                displayMessage("número de linha para o comando " + command.toUpperCase() + " inválido.", 2);
+                displayMessage(
+                        "código na memória ou entrada do usuário para o comando " + command.toUpperCase()
+                                + " contém número de linha inválido.",
+                        2);
             }
 
             // Subsitui o conteúdo do buffer atual com o de um arquivo .ed1
