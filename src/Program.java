@@ -3,6 +3,10 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
+/*
+ * REFERÊNCIAS:
+ * TODO
+ */
 import java.util.Scanner;
 
 /*

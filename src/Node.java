@@ -4,7 +4,7 @@
 /////////////////////////////////////////////
 
 /**
- * Nó da lista duplamente encadeada, e cada nó contém um valor genérico.
+ * Nó da lista duplamente encadeada, cada nó contém um valor genérico.
  */
 public class Node<T> {
 

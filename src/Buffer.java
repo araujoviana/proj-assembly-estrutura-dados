@@ -14,7 +14,7 @@ public class Buffer {
 
     // Armazena todos os comandos carregados em uma lista encadeada
     private LinkedList<String> commandBuffer;
-    // Armazena todos os registradores carregados
+    // Armazena todos os registradores carregados em uma lista encadeada
     private Registers registers;
 
     public Buffer() {
@@ -201,7 +201,7 @@ public class Buffer {
 
                     // Após a remoção, ajusta o próximo nó corretamente
                     if (current == commandBuffer.getHead()) {
-                        // Se removemos o nó inicial, atualiza o head
+                        // Se removeu o nó inicial, atualiza o head
                         current = commandBuffer.getHead();
                     } else {
                         current = nextNode;
@@ -256,7 +256,7 @@ public class Buffer {
 
             // Divide a linha em partes (número da linha, instrução e argumentos)
             String[] parts = current.getValue().split(" ", 3);
-            String lineNumber = parts[0]; // Número da linha (não utilizado diretamente aqui)
+            String lineNumber = parts[0]; // Número da linha (não manipulado diretamente aqui)
 
             // Verifica se a linha começa com um inteiro
             try {
@@ -272,7 +272,7 @@ public class Buffer {
                 return "número de linha inválido: " + (lineNumber.isEmpty() ? "linha vazia" : lineNumber) + ".";
             }
 
-            String instruction = parts[1]; // Instrução (ex: 'mov', 'add')
+            String instruction = parts[1]; // Instrução
             String arguments = parts[2]; // Argumentos da instrução
 
             // Verifica se a instrução é válida
@@ -290,20 +290,22 @@ public class Buffer {
             if (!instruction.equals("mov")) {
                 if (Instructions.isValidRegister(verifyParts[0])) {
                     if (definedRegisters.getNode(verifyParts[0]) == null) {
-                        return "registrador " + verifyParts[0] + " indefinido.";
+                        return "registrador " + verifyParts[0] + " indefinido na instrução " + instruction + " "
+                                + arguments;
                     }
                 }
             }
             if (verifyParts.length > 1 && Instructions.isValidRegister(verifyParts[1])) {
                 if (definedRegisters.getNode(verifyParts[1]) == null) {
-                    return "registrador " + verifyParts[1] + " indefinido.";
+                    return "registrador " + verifyParts[1] + " indefinido na instrução " + instruction + " "
+                            + arguments;
                 }
             }
 
             // Mensagem retornada pelas instruções
             String message;
 
-            // Avalia comando respectivo
+            // Avalia instrução respectiva
             switch (instruction) {
                 // Adiciona dois registradores
                 case "add":
@@ -381,6 +383,7 @@ public class Buffer {
                         return message;
                     }
 
+                    // Registrador se torna definido
                     definedRegisters.append(arguments.split(" ")[0]);
 
                     break;
@@ -414,6 +417,7 @@ public class Buffer {
 
             }
 
+            // Verifica se jnz fez algum pulo, se não, continua a avaliação
             if (!jnzJumped) {
                 current = current.getNext();
             } else {
@@ -479,7 +483,8 @@ public class Buffer {
                                     + " possui número de linha menor que outra linha já inserida.\n");
                     commandBuffer.append(currentLine);
                 }
-                // Valida a sintaxe da linha
+
+                // Valida a sintaxe da instrução da linha
                 else {
                     String syntaxError = Instructions.validateSyntax(splitCurrentLine[1], splitCurrentLine[2]);
                     if (syntaxError != null) {
@@ -504,7 +509,7 @@ public class Buffer {
                     currentBufferFileName);
         }
 
-        // Se houver erros, retorna a mensagem com todos os erros encontrados
+        // Se houver erros, retorna a mensagem com aviso e todos os erros encontrados
         if (errorMessages.length() > 0) {
             return new LoadResult(
                     "Erros de sintaxe encontrados no arquivo, o que pode afetar a execução (erros específicos de execução são reportados apenas quando o RUN é executado) e alguns comandos podem não funcionar corretamente:\n"
@@ -515,6 +520,17 @@ public class Buffer {
         return new LoadResult("Arquivo carregado com sucesso.", loadedFileName);
     }
 
+    /**
+     * Verifica se o número da linha fornecido é menor do que algum dos números de
+     * linha armazenados na lista encadeada.
+     * 
+     * @param currentNumber     o número da linha atual a ser comparado com os
+     *                          números de linha armazenados no buffer.
+     * @param bufferLineNumbers a lista encadeada contendo os números de linha
+     *                          armazenados.
+     * @return true se algum número de linha armazenado for maior que o número da
+     *         linha atual, caso contrário false.
+     */
     private boolean lineIsSmaller(String currentNumber, LinkedList<String> bufferLineNumbers) {
 
         // Itera sobre cada nó em bufferLineNumbers
@@ -559,7 +575,7 @@ public class Buffer {
         }
         // Verifica se o arquivo já existe
         File file = new File(loadedFileName);
-        if (file.exists()) {
+        if (file.exists() && !loadedFileName.equals(currentBufferFileName)) {
             Scanner scanner = new Scanner(System.in);
             String response;
 
@@ -597,7 +613,7 @@ public class Buffer {
     /**
      * Retorna o buffer de comandos.
      *
-     * @return O buffer de comandos como uma LinkedList de Strings.
+     * @return o buffer de comandos como uma lista encadeada de strings.
      */
     public LinkedList<String> getCommandBuffer() {
         return commandBuffer;
@@ -606,7 +622,7 @@ public class Buffer {
     /**
      * Retorna uma representação em string do buffer de comandos.
      * 
-     * @return Uma string com todos os comandos no buffer em ordem.
+     * @return uma string com todos os comandos no buffer em ordem.
      */
     @Override
     public String toString() {

@@ -29,7 +29,7 @@ public class Repl {
      * @return entrada formatada tipo "10 mov a 5"
      */
     public String formatInput(String input) {
-        // Não força o nome do arquivo carregado a ser minúsculo
+        // Não altera o nome do arquivo carregado
         if (input.toLowerCase().startsWith("load ")) {
             return "load " + input.substring(5).replaceAll("\\s+", " ").trim();
         }
@@ -78,15 +78,14 @@ public class Repl {
         String command = splitInput[0];
 
         // Finaliza a execução do REPL
-        if (command.equals("exit")) {
-            // Verificações...
-
+        if (command.equals("exit") && splitInput.length == 1) {
             String message = commands.exit(buffer, currentBufferFileName, bufferHasChanged);
 
             if (message != null) {
+                // Comando retornou com erro
                 displayMessage(message, 2);
             } else {
-                return true;
+                return true; // hasExited é verdadeiro, finalizando a execução do REPL
             }
         }
         // Insere uma instrução em uma linha específica
@@ -121,19 +120,22 @@ public class Repl {
                     displayMessage(message, 2);
                 }
 
-            } catch (NumberFormatException e) {
+            }
+            // Verifica se o número de linha é válido
+            catch (NumberFormatException e) {
                 displayMessage(
                         "código na memória ou entrada do usuário para o comando " + command.toUpperCase()
                                 + " contém número de linha inválido.",
                         2);
-            } catch (ArrayIndexOutOfBoundsException e) {
+            }
+            // Verifica se a instrução possui o tamanho correto
+            catch (ArrayIndexOutOfBoundsException e) {
                 displayMessage("instrução incompleta para a linha inserida no comando "
                         + command.toUpperCase() + ".", 2);
             }
 
             // Executa as instruções armazenadas no buffer
         } else if (command.equals("run") && splitInput.length == 1) {
-            // VERIFICAÇÕES AQUI
 
             // Chama o comando run no buffer e recebe qualquer mensagem retornada
             String message = commands.run(buffer);
@@ -142,8 +144,9 @@ public class Repl {
                 // Comando retornou erro
                 displayMessage(message, 2);
             }
-        } else if (command.equals("list") && splitInput.length == 1) {
-            // Loop para listar blocos de 20 linhas até que menos de 20 sejam retornadas
+        }
+        // Loop para listar blocos de 20 linhas até que menos de 20 sejam retornadas
+        else if (command.equals("list") && splitInput.length == 1) {
 
             // Verifica se o erro de list já foi exibido
             boolean bufferHasError = false;
@@ -162,44 +165,41 @@ public class Repl {
                     System.out.print(message);
 
                     // Verifica quantas linhas foram retornadas
-                    String[] lines = message.split("\n");
-                    int lineCount = lines.length;
+                    String[] messageLines = message.split("\n");
+                    int messageLineCount = messageLines.length;
 
                     try {
 
                         // Obtém o número da última linha da mensagem
-                        String lastLine = lines[lines.length - 1];
+                        String lastLine = messageLines[messageLines.length - 1];
                         String[] lastLineParts = lastLine.split(" ", 2);
 
-                        // Obtém o número da última linha do buffer (tail)
+                        // Obtém o número da última linha do buffer
                         String[] tailParts = buffer.getCommandBuffer().getTail().getValue().split(" ", 2);
 
                         int lastLineNumber = Integer.parseInt(lastLineParts[0]);
                         int tailLineNumber = Integer.parseInt(tailParts[0]);
 
                         // Verifica se existem linhas inválidas no buffer usando a exceção
-                        for (String line : lines) {
+                        for (String line : messageLines) {
                             String[] lineParts = line.split(" ", 2);
                             Integer.parseInt(lineParts[0]);
                         }
 
                         // Sai do loop se o número da última linha for igual ao número da linha da tail
                         // do buffer
-                        if (lineCount < 20) {
+                        if (messageLineCount < 20) {
                             break;
                         } else if (lastLineNumber == tailLineNumber) {
                             break;
                         }
                     } catch (NumberFormatException e) {
-                        /*
-                         * REVIEW
-                         * Se o arquivo gerar um NumberFormatException E o código tiver EXATAMENTE 20
-                         * linhas, ele faz um loop infinito, mas ta impossível de resolver :(
-                         */
                         bufferHasError = true;
-                        if (lineCount < 20) {
+                        // Tenta continuar listando o arquivo mesmo se ele contém erros
+                        if (messageLineCount < 20) {
                             break;
-                        } else if (!lines[lineCount - 1].equals(buffer.getCommandBuffer().getTail().getValue())) {
+                        } else if (!messageLines[messageLineCount - 1]
+                                .equals(buffer.getCommandBuffer().getTail().getValue())) {
                             continue;
                         }
                     }
@@ -207,16 +207,16 @@ public class Repl {
 
             }
 
+            // Avisa o usuário se o código listado contém algum número de linha inválido
             if (bufferHasError) {
                 displayMessage(
                         "código na memória contém pelo menos um número de linha inválido.",
                         1);
             }
         }
-        // Remove uma ou mais linhas do buffer
 
+        // Remove uma ou mais linhas do buffer
         else if (command.equals("del") && splitInput.length > 1 && splitInput.length < 4) {
-            // VERIFICAÇÕES AQUI
 
             // Isola o número da linha ou intervalo de linhas
             String[] numberStrings = splitInput[1].split(" ");
@@ -234,22 +234,24 @@ public class Repl {
                 if (message.startsWith("Linha")) {
                     // Comando operou corretamente
                     displayMessage(message, 0);
-                    bufferHasChanged = true;
+                    bufferHasChanged = true; // Buffer foi alterado
                 } else if (message != null) {
                     // Comando retornou erro
                     displayMessage(message, 2);
                 }
 
             } catch (NumberFormatException e) {
+                // Alerta o usuário caso o comando detecte alguma linha com número de linha
+                // inválida
                 displayMessage(
                         "código na memória ou entrada do usuário para o comando " + command.toUpperCase()
                                 + " contém número de linha inválido.",
                         2);
             }
 
-            // Subsitui o conteúdo do buffer atual com o de um arquivo .ed1
-        } else if (command.equals("load") && splitInput.length > 1) {
-            // Verificações aqui...
+        }
+        // Subsitui o conteúdo do buffer atual com o de um arquivo .ed1
+        else if (command.equals("load") && splitInput.length > 1 && splitInput[1].split(" ").length < 2) {
 
             String loadedFileName = splitInput[1]; // Caminho do arquivo salvo
 
@@ -257,9 +259,9 @@ public class Repl {
             LoadResult result = commands.load(buffer, loadedFileName, currentBufferFileName, bufferHasChanged);
 
             // Arquivo foi carregado com erros
-            if (result.error.startsWith("Arquivo com erros")) {
+            if (result.error.startsWith("Erros de")) {
                 displayMessage(result.error, 1);
-                // Buffer ainda intacto
+                // Buffer novo ainda intacto
                 bufferHasChanged = false;
                 // Atualiza o nome do arquivo atual
                 currentBufferFileName = result.fileName;
@@ -268,29 +270,32 @@ public class Repl {
             else if (result.error.startsWith("Arquivo carregado")) {
                 // Mensagem não é erro nesse caso
                 displayMessage(result.error, 0);
-                // Buffer ainda intacto
+                // Buffer novo ainda intacto
                 bufferHasChanged = false;
                 // Atualiza o nome do arquivo atual
                 currentBufferFileName = result.fileName;
 
             } else {
-                // Comando retornou erro
+                // Comando retornou erro e arquivo não foi carregado
                 displayMessage(result.error, 2);
             }
 
-            // Insere o conteúdo do buffer atual em um arquivo .ed1
-        } else if (command.equals("save")) {
+        }
+        // Insere o conteúdo do buffer atual em um arquivo .ed1
+        else if (command.equals("save") && (splitInput.length > 1 ? splitInput[1].split(" ").length : 0) < 2) {
             String savedFilePath; // Caminho do arquivo salvo
 
             // Verifica se o usuário especificou o arquivo para salvar
             if (splitInput.length > 1) {
                 savedFilePath = splitInput[1];
+
+                // Verifica a extensão do arquivo
                 if (!savedFilePath.endsWith(".ed1")) {
                     displayMessage("extensão do arquivo não termina com extensão .ed1.", 2);
                     return false;
                 }
             } else {
-                savedFilePath = currentBufferFileName;
+                savedFilePath = currentBufferFileName; // Arquivo atual é o arquivo salvo
             }
 
             // Chama o comando save no buffer e recebe qualquer mensagem retornada
@@ -302,10 +307,11 @@ public class Repl {
             } else {
                 bufferHasChanged = false; // Arquivo foi salvo então há alterações não salvas
                 displayMessage("Arquivo salvo com sucesso.", 0);
-                currentBufferFileName = savedFilePath;
+                currentBufferFileName = savedFilePath; // Arquivo atual é o arquivo salvo
             }
         } else {
-            displayMessage("argumentos para o comando " + command.toUpperCase() + " insuficientes", 2);
+            // Alerta que o comando inserido possui número de argumentos inválido
+            displayMessage("argumentos para o comando " + command.toUpperCase() + " insuficientes ou excessivos.", 2);
         }
 
         // Usuário não executou o comando EXIT

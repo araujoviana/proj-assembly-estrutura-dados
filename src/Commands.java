@@ -65,7 +65,7 @@ public class Commands {
      *         retorna o resultado da execução do código no buffer
      */
     public String run(Buffer buffer) {
-        // Lista encadeada contendo o conteúdo do buffer
+        // Lista encadeada com o conteúdo do buffer
         LinkedList<String> commandBuffer = buffer.getCommandBuffer();
 
         // Verifica se há código carregado no buffer
@@ -85,6 +85,7 @@ public class Commands {
      *         retorna null após exibir as linhas no console
      */
     public String list(Buffer buffer) {
+        // Lista encadeada com o conteúdo do buffer
         LinkedList<String> commandBuffer = buffer.getCommandBuffer();
 
         // Verifica se há código carregado no buffer
@@ -115,7 +116,7 @@ public class Commands {
             count++;
         } while (currentNode != commandBuffer.getHead() && count < 20);
 
-        // Reseta currentNode se chegamos ao final da lista
+        // Reinicia currentNode se chegar no final da lista
         if (currentNode == commandBuffer.getHead()) {
             currentNode = null; // Redefine para o início da lista na próxima chamada
         }
@@ -142,7 +143,7 @@ public class Commands {
             // Array contém um número, indicando uma única linha para remoção
             return buffer.removeLine(lineNumbers[0]);
         } else {
-            return "comando delete precisa de dois inteiros válidos.";
+            return "comando DEL precisa de dois inteiros válidos no intervalo.";
         }
 
     }
@@ -165,12 +166,15 @@ public class Commands {
         if (bufferHasChanged) {
             Scanner loadScanner = new Scanner(System.in);
             String input = "";
+
+            // Loop até o usuário fornecer uma resposta válida
             while (!input.toLowerCase().equals("s") && !input.toLowerCase().equals("n")) {
                 System.out
                         .print("Arquivo atual " + currentBufferFileName
                                 + " contém alterações não salvas.\nDeseja salvar? (S/N)\n> ");
                 input = loadScanner.nextLine();
 
+                // Se o usuário escolher sim, tenta salvar o arquivo
                 if (input.toLowerCase().equals("s")) {
                     String result = save(buffer, currentBufferFileName, loadedFileName);
 
@@ -183,7 +187,9 @@ public class Commands {
                         System.out.println("Arquivo " + currentBufferFileName + " salvo com sucesso.");
                     }
 
-                } else if (input.toLowerCase().equals("n")) {
+                }
+                // Se o usuário escolher não, não tenta salvar o arquivo
+                else if (input.toLowerCase().equals("n")) {
                     System.out.println(
                             "Alterações no arquivo não serão salvas.\n\nCarregando arquivo " + loadedFileName + ".");
                 }
@@ -218,18 +224,21 @@ public class Commands {
         if (currentBufferFileName.isEmpty() && savedFilePath.isEmpty()) {
             Scanner saveScanner = new Scanner(System.in);
             String input = "";
+
+            // Loop até o usuário fornecer uma resposta válida
             while (input.isEmpty()) {
                 System.out.print("Arquivo atual não possui nome, insira um nome:\n> ");
                 input = saveScanner.nextLine();
 
+                // Verifica a extensão do arquivo
                 if (!input.endsWith(".ed1")) {
                     System.out.println("Erro: extensão de arquivo inválida, use .ed1");
                     input = "";
                     continue;
                 }
-                System.out.println("Tentando salvar arquivo " + input + " ...");
+                System.out.println("Tentando salvar arquivo " + input + "...");
             }
-            savedFilePath = input;
+            savedFilePath = input; // Arquivo salvo se torna a entrada
         }
 
         String result = buffer.saveBuffer(savedFilePath, currentBufferFileName);
@@ -253,23 +262,29 @@ public class Commands {
         if (bufferHasChanged) {
             Scanner exitScanner = new Scanner(System.in);
             String input = "";
+            // Loop até o usuário fornecer uma resposta válida
             while (!input.toLowerCase().equals("s") && !input.toLowerCase().equals("n")) {
                 System.out
                         .print("Arquivo atual " + (currentBufferFileName.isEmpty() ? "sem nome" : currentBufferFileName)
                                 + " contém alterações não salvas.\nDeseja salvar? (S/N)\n> ");
                 input = exitScanner.nextLine();
 
+                // Se o usuário escolher sim, tenta salvar o arquivo
                 if (input.toLowerCase().equals("s")) {
 
                     String result = save(buffer, currentBufferFileName, "");
 
                     if (result != null) {
-                        return "Erro: " + result + "\n\nArquivo " + currentBufferFileName
+                        return "Erro: " + result + "\n\nArquivo "
+                                + (currentBufferFileName.isEmpty() ? "sem nome" : currentBufferFileName)
                                 + " não foi salvo e consequentemente o programa não sairá.";
                     } else {
-                        System.out.println("Arquivo " + currentBufferFileName + " salvo com sucesso. \n\nSaindo.");
+                        System.out.println(
+                                "Arquivo salvo com sucesso. \n\nSaindo.");
                     }
-                } else if (input.toLowerCase().equals("n")) {
+                }
+                // Se o usuário escolher não, não tenta salvar o arquivo
+                else if (input.toLowerCase().equals("n")) {
                     System.out
                             .println("Alterações no arquivo "
                                     + (currentBufferFileName.isEmpty() ? "sem nome" : currentBufferFileName)
