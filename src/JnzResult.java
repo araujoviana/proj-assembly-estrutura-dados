@@ -3,6 +3,10 @@
 // Enzo Carvalho Pagliarini - 10425707     //
 /////////////////////////////////////////////
 
+/*
+ * Resultado da instrução jnz, armazena o nó que será alvo do jump
+ * e a mensagem de retorno do método
+ */
 public class JnzResult {
     public Node<String> node;
     public String error;

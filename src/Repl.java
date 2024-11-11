@@ -170,10 +170,11 @@ public class Repl {
                         // Obtém o número da última linha da mensagem
                         String lastLine = lines[lines.length - 1];
                         String[] lastLineParts = lastLine.split(" ", 2);
-                        int lastLineNumber = Integer.parseInt(lastLineParts[0]);
 
                         // Obtém o número da última linha do buffer (tail)
                         String[] tailParts = buffer.getCommandBuffer().getTail().getValue().split(" ", 2);
+
+                        int lastLineNumber = Integer.parseInt(lastLineParts[0]);
                         int tailLineNumber = Integer.parseInt(tailParts[0]);
 
                         // Verifica se existem linhas inválidas no buffer usando a exceção
@@ -184,13 +185,22 @@ public class Repl {
 
                         // Sai do loop se o número da última linha for igual ao número da linha da tail
                         // do buffer
-                        if (lineCount < 20 || lastLineNumber == tailLineNumber) {
+                        if (lineCount < 20) {
+                            break;
+                        } else if (lastLineNumber == tailLineNumber) {
                             break;
                         }
                     } catch (NumberFormatException e) {
+                        /*
+                         * REVIEW
+                         * Se o arquivo gerar um NumberFormatException E o código tiver EXATAMENTE 20
+                         * linhas, ele faz um loop infinito, mas ta impossível de resolver :(
+                         */
                         bufferHasError = true;
                         if (lineCount < 20) {
                             break;
+                        } else if (!lines[lineCount - 1].equals(buffer.getCommandBuffer().getTail().getValue())) {
+                            continue;
                         }
                     }
                 }

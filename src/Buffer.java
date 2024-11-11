@@ -269,7 +269,7 @@ public class Buffer {
 
                 }
             } catch (NumberFormatException e) {
-                return "número de linha inválido: " + lineNumber + ".";
+                return "número de linha inválido: " + (lineNumber.isEmpty() ? "linha vazia" : lineNumber) + ".";
             }
 
             String instruction = parts[1]; // Instrução (ex: 'mov', 'add')
@@ -507,9 +507,8 @@ public class Buffer {
         // Se houver erros, retorna a mensagem com todos os erros encontrados
         if (errorMessages.length() > 0) {
             return new LoadResult(
-                    "Arquivo com erros de sintaxe carregado, então não será possível executá-lo completamente e alguns comandos não funcionarão corretamente até que os erros sejam corrigidos:\n"
-                            +
-                            errorMessages.toString(),
+                    "Erros de sintaxe encontrados no arquivo, o que pode afetar a execução (erros específicos de execução são reportados apenas quando o RUN é executado) e alguns comandos podem não funcionar corretamente:\n"
+                            + errorMessages.toString(),
                     loadedFileName);
         }
 
@@ -536,8 +535,9 @@ public class Buffer {
                 }
             } catch (NullPointerException e) {
                 continue;
+            } catch (NumberFormatException e) {
+                continue;
             }
-
             current = current.getNext(); // Avança para o próximo nó na lista
         } while (current != bufferLineNumbers.getHead());
 
@@ -570,7 +570,7 @@ public class Buffer {
                 if (response.equals("s")) {
                     break;
                 } else if (response.equals("n")) {
-                    return "operação de salvamento cancelada pelo usuário.";
+                    return "arquivo não será sobrescrito.";
                 }
             }
         }

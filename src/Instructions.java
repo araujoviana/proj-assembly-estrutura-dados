@@ -403,7 +403,7 @@ public class Instructions {
 
         // Se não encontrar um comando correspondente, retorna um erro
         if (!newCurrentIsValid) {
-            return new JnzResult(null, "linha de jump " + paramParts[1]+ " inválida");
+            return new JnzResult(null, "linha de jump em " + paramParts[1] + " inválida");
         }
 
         // Se encontrar um comando válido, retorna a nova instrução atual

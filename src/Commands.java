@@ -255,7 +255,7 @@ public class Commands {
             String input = "";
             while (!input.toLowerCase().equals("s") && !input.toLowerCase().equals("n")) {
                 System.out
-                        .print("Arquivo atual " + currentBufferFileName
+                        .print("Arquivo atual " + (currentBufferFileName.isEmpty() ? "sem nome" : currentBufferFileName)
                                 + " contém alterações não salvas.\nDeseja salvar? (S/N)\n> ");
                 input = exitScanner.nextLine();
 
