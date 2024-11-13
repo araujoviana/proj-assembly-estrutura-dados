@@ -170,19 +170,27 @@ public class Commands {
             // Loop até o usuário fornecer uma resposta válida
             while (!input.toLowerCase().equals("s") && !input.toLowerCase().equals("n")) {
                 System.out
-                        .print("Arquivo atual " + currentBufferFileName
+                        .print("Arquivo atual " + (currentBufferFileName.isEmpty() ? "sem nome" : currentBufferFileName)
                                 + " contém alterações não salvas.\nDeseja salvar? (S/N)\n> ");
                 input = loadScanner.nextLine();
 
                 // Se o usuário escolher sim, tenta salvar o arquivo
                 if (input.toLowerCase().equals("s")) {
-                    String result = save(buffer, currentBufferFileName, loadedFileName);
+
+                    // Salva o arquivo, verificando se o nome está vazio
+                    String result;
+                    if (currentBufferFileName.isEmpty()) {
+                        result = save(buffer, "", "");
+                    } else {
+                        result = save(buffer, currentBufferFileName, loadedFileName);
+                    }
 
                     if (result != null) {
-                        System.out.println(
-                                "Erro: " + result + "\n\nArquivo " + currentBufferFileName
-                                        + " não foi salvo e consequentemente o arquivo "
-                                        + loadedFileName + " não foi carregado.");
+                        return new LoadResult(result + "\n\nArquivo " + currentBufferFileName
+                                + " não foi salvo e consequentemente o arquivo "
+                                + loadedFileName + " não foi carregado.",
+                                currentBufferFileName);
+
                     } else {
                         System.out.println("Arquivo " + currentBufferFileName + " salvo com sucesso.");
                     }
@@ -272,10 +280,10 @@ public class Commands {
                 // Se o usuário escolher sim, tenta salvar o arquivo
                 if (input.toLowerCase().equals("s")) {
 
-                    String result = save(buffer, currentBufferFileName, "");
+                    String result = save(buffer, currentBufferFileName, currentBufferFileName);
 
                     if (result != null) {
-                        return "Erro: " + result + "\n\nArquivo "
+                        return result + "\n\nArquivo "
                                 + (currentBufferFileName.isEmpty() ? "sem nome" : currentBufferFileName)
                                 + " não foi salvo e consequentemente o programa não sairá.";
                     } else {

@@ -4,9 +4,18 @@
 /////////////////////////////////////////////
 
 /*
- * REFERÊNCIAS:
- * TODO
+ * Referências:
+ * Uso de null com int: https://stackoverflow.com/questions/13747859/how-to-check-if-an-int-is-a-null
+ * Substring: https://www.w3schools.com/java/ref_string_substring.asp
+ * Retornar multiplos valores em Java: https://www.geeksforgeeks.org/returning-multiple-values-in-java/
+ * BufferedReader: https://www.geeksforgeeks.org/java-io-bufferedreader-class-java/
+ *
+ * Conversas com IA:
+ * Finalizando código antes da main: https://chatgpt.com/share/67322c05-e6c0-800b-880c-15446a709ba9
+ * BufferedReader, BufferedWriter e ternárias: https://chatgpt.com/share/67322ce9-1fac-800b-950d-846bf2a72ce3
+ * Parâmetros opcionais: https://chatgpt.com/share/67322d82-28f4-800b-aa84-2dd5ea394b5a
  */
+
 import java.util.Scanner;
 
 /*

@@ -75,7 +75,7 @@ public class LinkedList<T> {
     /**
      * Insere um nó antes do nó especificado na lista.
      *
-     * @param node  O nó antes do qual o novo nó será inserido.
+     * @param node  O nó depois do qual o novo nó será inserido.
      * @param value O valor a ser armazenado no novo nó.
      * @return true se a inserção for bem-sucedida, false se o nó especificado não
      *         for encontrado.
