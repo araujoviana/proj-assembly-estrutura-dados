@@ -566,16 +566,19 @@ public class Buffer {
      *
      * @param loadedFileName        O caminho do arquivo a ser carregado
      * @param currentBufferFileName o caminho do arquivo carregado atualmente
+     * @param isLoadingFile         verifica se o usuário está carregando outro
+     *                              arquivo
      * @return Uma mensagem de erro se ocorrer algum erro durante a operação, ou
      *         null se for bem-sucedida.
      */
-    public String saveBuffer(String loadedFileName, String currentBufferFileName) {
+    public String saveBuffer(String loadedFileName, String currentBufferFileName, boolean isLoadingFile) {
         if (commandBuffer.isEmpty()) {
             return "não há nenhum código na memória atualmente.";
         }
-        // Verifica se o arquivo já existe
+        // Verifica se o arquivo já existe E se o usuário não está carregando outro
+        // arquivo
         File file = new File(loadedFileName);
-        if (file.exists() && !loadedFileName.equals(currentBufferFileName)) {
+        if (file.exists() && !loadedFileName.equals(currentBufferFileName) && !isLoadingFile) {
             Scanner scanner = new Scanner(System.in);
             String response;
 

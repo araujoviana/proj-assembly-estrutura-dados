@@ -180,9 +180,9 @@ public class Commands {
                     // Salva o arquivo, verificando se o nome está vazio
                     String result;
                     if (currentBufferFileName.isEmpty()) {
-                        result = save(buffer, "", "");
+                        result = save(buffer, "", "", false);
                     } else {
-                        result = save(buffer, currentBufferFileName, loadedFileName);
+                        result = save(buffer, currentBufferFileName, loadedFileName, true);
                     }
 
                     if (result != null) {
@@ -225,9 +225,11 @@ public class Commands {
      * @param buffer                o buffer onde o código será salvo
      * @param savedFilePath         o caminho do arquivo de onde o código será salvo
      * @param currentBufferFileName o caminho do arquivo carregado atualmente
+     * @param isLoadingFile         verifica se o usuário está carregando outro
+     *                              arquivo
      * @return o resultado da tentativa de salvar o arquivo
      */
-    public String save(Buffer buffer, String savedFilePath, String currentBufferFileName) {
+    public String save(Buffer buffer, String savedFilePath, String currentBufferFileName, boolean isLoadingFile) {
 
         if (currentBufferFileName.isEmpty() && savedFilePath.isEmpty()) {
             Scanner saveScanner = new Scanner(System.in);
@@ -249,7 +251,7 @@ public class Commands {
             savedFilePath = input; // Arquivo salvo se torna a entrada
         }
 
-        String result = buffer.saveBuffer(savedFilePath, currentBufferFileName);
+        String result = buffer.saveBuffer(savedFilePath, currentBufferFileName, isLoadingFile);
 
         return result;
     }
@@ -280,7 +282,7 @@ public class Commands {
                 // Se o usuário escolher sim, tenta salvar o arquivo
                 if (input.toLowerCase().equals("s")) {
 
-                    String result = save(buffer, currentBufferFileName, currentBufferFileName);
+                    String result = save(buffer, currentBufferFileName, currentBufferFileName, false);
 
                     if (result != null) {
                         return result + "\n\nArquivo "

@@ -299,7 +299,7 @@ public class Repl {
             }
 
             // Chama o comando save no buffer e recebe qualquer mensagem retornada
-            String message = commands.save(buffer, savedFilePath, currentBufferFileName);
+            String message = commands.save(buffer, savedFilePath, currentBufferFileName, false);
 
             if (message != null) {
                 // Comando retornou erro
