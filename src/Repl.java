@@ -8,6 +8,8 @@
  * os executa se comunicando com o buffer do código carregado.
  */
 
+import java.util.Scanner;
+
 public class Repl {
 
     private Commands commands; // Comandos do REPL
@@ -295,7 +297,28 @@ public class Repl {
                     return false;
                 }
             } else {
-                savedFilePath = currentBufferFileName; // Arquivo atual é o arquivo salvo
+
+                if (!currentBufferFileName.isEmpty()) {
+                    savedFilePath = currentBufferFileName; // Arquivo atual é o arquivo salvo
+                } else {
+                    Scanner saveScanner = new Scanner(System.in);
+                    String saveInput = "";
+
+                    // Loop até o usuário fornecer uma resposta válida
+                    while (saveInput.isEmpty()) {
+                        System.out.print("Arquivo atual não possui nome, insira um nome:\n> ");
+                        saveInput = saveScanner.nextLine();
+
+                        // Verifica a extensão do arquivo
+                        if (!saveInput.endsWith(".ed1")) {
+                            System.out.println("Erro: extensão de arquivo inválida, use .ed1");
+                            saveInput = "";
+                            continue;
+                        }
+                        System.out.println("Tentando salvar arquivo " + input + "...");
+                    }
+                    savedFilePath = saveInput; // Arquivo salvo se torna a entrada
+                }
             }
 
             // Chama o comando save no buffer e recebe qualquer mensagem retornada
