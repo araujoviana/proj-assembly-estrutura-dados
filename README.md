@@ -1,3 +1,5 @@
+> 📦 **Archived (November 2026).** A REPL for a simplified assembly-style language, in Java, from a data structures course (2024). Kept as a read-only record of what I was working on at the time; it is no longer maintained.
+
 # proj-assembly-estrutura-dados
 REPL de uma linguagem estilo Assembly simplificada em Java
 
